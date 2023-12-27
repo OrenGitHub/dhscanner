@@ -17,12 +17,12 @@ def get_python_src_files() -> dict[str, str]:
 
 def translate(python_code: str) -> str:
     files = {'source': ('source', python_code)}
-    response = requests.post('http://localhost:8002/translator/python', files=files)
+    response = requests.post('http://localhost:8000/translator/python', files=files)
     return response.text
 
 def parse(python_code: str):
     code = {'filename': 'someFile.txt', 'content': python_code}
-    response = requests.post('http://localhost:8000', json=code)
+    response = requests.post('http://localhost:8001', json=code)
     return response.json()
 
 def main() -> None:
