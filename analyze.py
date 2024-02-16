@@ -25,14 +25,28 @@ def parse(python_code: str):
     response = requests.post('http://localhost:8001', json=code)
     return response.json()
 
-def main() -> None:
+def get_asts():
 
+    # asts = []
     python_src_files = get_python_src_files()
     for filename, python_code in python_src_files.items():
         translated = translate(python_code)
-        parsed = parse(translated)
-        print(filename, end=" ")
-        print(json.dumps(parsed, indent=4))
+        return parse(translated)
+        # break
+
+    # return asts
+
+def get_callables():
+
+    asts = {'dirname': 'someDir', 'astsContent': [get_asts()] }
+    response = requests.post('http://localhost:8002', json=asts)
+    return response.json()
+
+def main() -> None:
+
+    callables = get_callables()
+    response = requests.post('http://localhost:8003', json=callables)
+    print(response.json())
 
 if __name__ == "__main__":
 	main()
