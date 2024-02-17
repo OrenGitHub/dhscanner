@@ -3,7 +3,7 @@ import glob
 import requests
 
 def get_python_src_filenames() -> list[str]:
-	return glob.glob('code/lib/**/*.py', recursive=True)
+	return glob.glob('code/*.py', recursive=True)
 
 def get_python_src_files() -> dict[str, str]:
 	python_src_files = {}
@@ -15,26 +15,27 @@ def get_python_src_files() -> dict[str, str]:
 
 	return python_src_files
 
-def translate(python_code: str) -> str:
+def translate(filename: str, python_code: str) -> str:
     files = {'source': ('source', python_code)}
     response = requests.post('http://localhost:8000/translator/python', files=files)
+    print(f'translation: {filename} -> {response.status_code}')
     return response.text
 
-def parse(python_code: str):
+def parse(filename:str, python_code: str):
     code = {'filename': 'someFile.txt', 'content': python_code}
     response = requests.post('http://localhost:8001', json=code)
+    print(f'parsing:     {filename} -> {response.status_code}')
     return response.json()
 
 def get_asts():
 
-    # asts = []
+    asts = []
     python_src_files = get_python_src_files()
     for filename, python_code in python_src_files.items():
-        translated = translate(python_code)
-        return parse(translated)
-        # break
+        translated = translate(filename, python_code)
+        asts.append(parse(filename, translated))
 
-    # return asts
+    return asts
 
 def get_callables():
 
@@ -44,39 +45,13 @@ def get_callables():
 
 def main() -> None:
 
-    callables = get_callables()
-    response = requests.post('http://localhost:8003', json=callables)
-    print(response.json())
+    asts = get_asts()
+    # print(json.dumps(asts))
+
+    #callables = get_callables()
+    #response = requests.post('http://localhost:8003', json=callables)
+    #print(response.json())
 
 if __name__ == "__main__":
 	main()
 
-def old():
-
-    code ="""
-    int xxx;
-    int yyy;
-    """
-
-    #with open('ast2.json') as fl:
-    #	asts = json.load(fl)
-
-    #print(json.dumps(asts, indent=4))
-
-    # asts_data = {'dirname': '/some/arbitrary/dir', 'astsContent': asts}
-    code_data = {'filename': 'someFile.txt', 'content': code}
-
-    response = requests.post('http://localhost:8000', json=code_data)
-    # response = requests.post('http://localhost:8000', json=asts_data)
-
-    print(response)
-
-    json_response = json.loads(response.json())
-    #print(json.dumps(json_response, indent=4))
-
-    x = {'dirname': 'some/bullshit/dir', 'astsContent': [json_response]}
-    response = requests.post('http://localhost:8001', json=x)
-
-    #print(response)
-    json_response = json.loads(response.json())
-    print(json.dumps(json_response, indent=4))
