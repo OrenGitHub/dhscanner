@@ -3,7 +3,7 @@ import glob
 import requests
 
 def get_python_src_filenames() -> list[str]:
-	return glob.glob('code/*.py', recursive=True)
+    return glob.glob('code_tag/*.py', recursive=True)
 
 def get_python_src_files() -> dict[str, str]:
 	python_src_files = {}
@@ -18,13 +18,15 @@ def get_python_src_files() -> dict[str, str]:
 def translate(filename: str, python_code: str) -> str:
     files = {'source': ('source', python_code)}
     response = requests.post('http://localhost:8000/translator/python', files=files)
-    print(f'translation: {filename} -> {response.status_code}')
+    # print(f'translation: {filename} -> {response.status_code}')
+    #if 'oren' in filename:
+    #    print(response.text)
     return response.text
 
 def parse(filename:str, python_code: str):
-    code = {'filename': 'someFile.txt', 'content': python_code}
+    code = {'filename': filename, 'content': python_code}
     response = requests.post('http://localhost:8001', json=code)
-    print(f'parsing:     {filename} -> {response.status_code}')
+    # print(f'parsing:     {filename} -> {response.status_code}')
     return response.json()
 
 def get_asts():
@@ -39,14 +41,21 @@ def get_asts():
 
 def get_callables():
 
-    asts = {'dirname': 'someDir', 'astsContent': [get_asts()] }
+    asts = {'dirname': 'someDir', 'astsContent': get_asts() }
     response = requests.post('http://localhost:8002', json=asts)
     return response.json()
 
 def main() -> None:
 
+    #callables = get_callables()
     asts = get_asts()
-    # print(json.dumps(asts))
+    for ast in asts:
+        content = json.loads(json.dumps(ast))
+        if isinstance(content, dict) and 'filename' in content:
+            filename = content['filename']
+            print(f'{filename} ---> SUCCESS')
+        else:
+            print(json.dumps(ast))
 
     #callables = get_callables()
     #response = requests.post('http://localhost:8003', json=callables)
