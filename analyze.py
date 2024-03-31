@@ -8,8 +8,8 @@ import requests
 from typing import Final
 
 # routes
-TO_NATIVE_JS_AST_ROUTE: Final[str] = 'http://localhost:8000/to/native/ast'
-TO_DHSCANNER_AST_ROUTE: Final[str] = 'http://localhost:8000/to/dhscanner/ast'
+TO_ESPRIMA_JS_AST_ROUTE: Final[str] = 'http://localhost:8010/to/esprima/js/ast'
+TO_DHSCANNER_AST_ROUTE: Final[str] = 'http://localhost:8011/to/dhscanner/ast'
 
 def get_src_filenames(dirname: str, suffix: str) -> list[str]:
     return glob.glob(f"{dirname}/*.{suffix}", recursive=True)
@@ -24,9 +24,9 @@ def get_src_files(dirname: str, suffix: str) -> dict[str, str]:
 
     return python_src_files
 
-def to_native_js_ast(js_code: str) -> str:
+def to_esprima_js_ast(js_code: str) -> str:
     files = {'source': ('source', js_code)}
-    response = requests.post(TO_NATIVE_JS_AST_ROUTE, files=files)
+    response = requests.post(TO_ESPRIMA_JS_AST_ROUTE, files=files)
     return response.text
 
 def from_js_ast_to_dhscanner_ast(js_filename:str, js_code: str):
@@ -58,26 +58,34 @@ def analyze():
 def main():
 
     workdir = 'dockers/example_00'
-    tar_ed_docker = tarfile.open(name=f'{workdir}/example.tar')
-    tar_ed_docker.extractall(path=workdir)
-    tar_ed_docker.close()
+    #tar_ed_docker = tarfile.open(name=f'{workdir}/example.tar')
+    #tar_ed_docker.extractall(path=workdir)
+    #tar_ed_docker.close()
 
     dirnames = []    
     layers = glob.glob(f'{workdir}/**/layer.tar', recursive=True)
     for layer in layers:
-        tar_ed_layer = tarfile.open(name=layer)
+        #tar_ed_layer = tarfile.open(name=layer)
         dirname = os.path.dirname(layer)
-        tar_ed_layer.extractall(path=dirname)
-        tar_ed_layer.close()
+        #tar_ed_layer.extractall(path=dirname)
+        #tar_ed_layer.close()
         dirnames.append(dirname)
 
-    print(dirnames)
-
+    files = []
     for dirname in dirnames:
         js_files = glob.glob(f'{dirname}/**/*.js', recursive=True)
         for js_file in js_files:
             if 'node_modules' not in js_file:
-                print(js_file)
+                if 'main.js' in js_file: # <--- that's cheating :)
+                    files.append(js_file)
+
+    for file in files:
+        with open(file) as fl:
+            content = fl.read()
+        esprima_ast = to_esprima_js_ast(content)
+        indented_esprima_ast = json.dumps(json.loads(esprima_ast), indent=2)
+        dhscanner_ast = from_js_ast_to_dhscanner_ast(file, indented_esprima_ast)
+        print(dhscanner_ast)
 
 if __name__ == "__main__":
     main()
