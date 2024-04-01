@@ -32,7 +32,7 @@ def to_esprima_js_ast(js_code: str) -> str:
 def from_js_ast_to_dhscanner_ast(js_filename:str, js_code: str):
     code = {'filename': js_filename, 'content': js_code}
     response = requests.post(TO_DHSCANNER_AST_ROUTE, json=code)
-    return response.json()
+    return response.text
 
 def get_asts(dirname: str, suffix: str, to_native_ast, to_dhscanner_ast):
 
