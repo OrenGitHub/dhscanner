@@ -1,0 +1,3 @@
+[submodule "dhscanner.examples"]
+	path = dhscanner.examples
+	url = https://github.com/OrenGitHub/dhscanner.examples
