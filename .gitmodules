@@ -4,3 +4,6 @@
 [submodule "dhscanner.front.js"]
 	path = dhscanner.front.js
 	url = https://github.com/OrenGitHub/dhscanner.front.js
+[submodule "dhscanner.parser.js"]
+	path = dhscanner.parser.js
+	url = https://github.com/OrenGitHub/dhscanner.parser.js
