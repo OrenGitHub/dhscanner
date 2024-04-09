@@ -17,14 +17,18 @@ $ cd dhscanner
 # on a modern laptop ( coffee break :coffee: !)
 # this is a single time thing, and would surely improve soon
 $ cd dhscanner.front.js  && docker build --tag host.front.js  --file Dockerfile . && cd ../
+$ cd dhscanner.front.rb  && docker build --tag host.front.rb  --file Dockerfile . && cd ../
 $ cd dhscanner.parser.js && docker build --tag host.parser.js --file Dockerfile . && cd ../
+$ cd dhscanner.parser.rb && docker build --tag host.parser.rb --file Dockerfile . && cd ../
 
 # now let's run our docker containers, distributing local ports incrementally.
 $ docker run -p 8000:3000 -d -t --name front.js  host.front.js
-$ docker run -p 8001:3000 -d -t --name parser.js host.parser.js
+$ docker run -p 8001:3000 -d -t --name front.rb  host.front.rb
+$ docker run -p 8002:3000 -d -t --name parser.js host.parser.js
+$ docker run -p 8003:3000 -d -t --name parser.rb host.parser.rb
 
 # finally, let's build dhscanner, which also runs from a docker container
-$ docker build --tag host.front.js  --file Dockerfile .
+$ docker build --tag host.dhscanner  --file Dockerfile .
 $ docker run --network=host -d -t --name dhscanner host.dhscanner
 
 # everything seems ready - let's do a quick health check
@@ -37,4 +41,3 @@ $ python health_check_all_components.py
 ```
 
 [1]: https://docs.docker.com/
-[2]: https://www.python.org/
