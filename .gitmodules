@@ -7,3 +7,9 @@
 [submodule "dhscanner.parser.js"]
 	path = dhscanner.parser.js
 	url = https://github.com/OrenGitHub/dhscanner.parser.js
+[submodule "dhscanner.front.rb"]
+	path = dhscanner.front.rb
+	url = https://github.com/OrenGitHub/dhscanner.front.rb
+[submodule "dhscanner.parser.rb"]
+	path = dhscanner.parser.rb
+	url = https://github.com/OrenGitHub/dhscanner.parser.rb

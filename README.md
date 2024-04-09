@@ -1,40 +1,39 @@
 ### dhscanner
 
-If you like software problems - please consider contributing to this repo :smiley:
+Make container scanning great again :smiley:
 
 #### Installation
 
-The only things you need in order to use `dhscanner` is [docker][1] and [python][2].
+The only things you need in order to use `dhscanner` is [docker][1].
 
 ```bash
 
 # let's clone this repo with its dependent submodules !
 $ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
+$ cd dhscanner
 
-# now let's build an example docker image !
-$ cd dhscanner.examples/cve_2023_37466/example_00
-$ docker build --tag host.example --file Dockerfile .
-$ docker save --output example_00.tar host.example
+# the software components of dhcanner reside in docker containers.
+# let's build them ! it should take anywhere between 5 and 15 min
+# on a modern laptop ( coffee break :coffee: !)
+# this is a single time thing, and would surely improve soon
+$ cd dhscanner.front.js  && docker build --tag host.front.js  --file Dockerfile . && cd ../
+$ cd dhscanner.parser.js && docker build --tag host.parser.js --file Dockerfile . && cd ../
 
-# we need to run a couple of dockers listenning on localhost
-# ports are assigned serially from 8000 upwards
+# now let's run our docker containers, distributing local ports incrementally.
+$ docker run -p 8000:3000 -d -t --name front.js  host.front.js
+$ docker run -p 8001:3000 -d -t --name parser.js host.parser.js
 
-# 1. first run the esprima js parser
-$ cd ../../../ # <--- go back up to the repo root
-$ cd dhscanner.front.js
-$ docker build --tag host.front.js --file Dockerfile .
-$ docker run -p 8000:3000 -d -t --name front.js host.front.js
+# finally, let's build dhscanner, which also runs from a docker container
+$ docker build --tag host.front.js  --file Dockerfile .
+$ docker run --network=host -d -t --name dhscanner host.dhscanner
 
-# 2. now build and run the dhscanner ast generator
-$ cd ../ # <--- go back up to the repo root
-$ cd dhscanner.parser.js
-$ docker build --tag host.parser.js --file Dockerfile .
-$ docker run -p 8001:3000 -d -t --name front.js host.front.js
+# everything seems ready - let's do a quick health check
+# what are you waiting for ? just jump inside !
+$ docker exec -it dhscanner bash
 
-# 3. now setup the python environment and let's scan some dockers !
-$ pipenv shell
-$ pipenv install
-$ python analyze.py
+# inside our cozy and comfy docker !
+# let's make sure everyone's ready for work !
+$ python health_check_all_components.py
 ```
 
 [1]: https://docs.docker.com/
