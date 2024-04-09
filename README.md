@@ -16,10 +16,10 @@ $ cd dhscanner
 # let's build them ! it should take anywhere between 5 and 15 min
 # on a modern laptop ( coffee break :coffee: !)
 # this is a single time thing, and would surely improve soon
-$ cd dhscanner.front.js  && docker build --tag host.front.js  --file Dockerfile . && cd ../
-$ cd dhscanner.front.rb  && docker build --tag host.front.rb  --file Dockerfile . && cd ../
-$ cd dhscanner.parser.js && docker build --tag host.parser.js --file Dockerfile . && cd ../
-$ cd dhscanner.parser.rb && docker build --tag host.parser.rb --file Dockerfile . && cd ../
+$ docker build --tag host.front.js  --file dhscanner.front.js/Dockerfile  dhscanner.front.js
+$ docker build --tag host.front.rb  --file dhscanner.front.rb/Dockerfile  dhscanner.front.rb
+$ docker build --tag host.parser.js --file dhscanner.parser.js/Dockerfile dhscanner.parser.js
+$ docker build --tag host.parser.rb --file dhscanner.parser.rb/Dockerfile dhscanner.parser.rb
 
 # now let's run our docker containers, distributing local ports incrementally.
 $ docker run -p 8000:3000 -d -t --name front.js  host.front.js
