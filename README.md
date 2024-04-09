@@ -20,7 +20,7 @@ $ docker build --tag host.parser.js --file dhscanner.parser.js/Dockerfile dhscan
 $ docker build --tag host.parser.rb --file dhscanner.parser.rb/Dockerfile dhscanner.parser.rb
 ```
 
-- local host ports are distributed *consecutively* from `8000` upward
+- local host ports are distributed *consecutively*
 
 ```bash
 $ docker run -p 8000:3000 -d -t --name front.js  host.front.js
