@@ -2,7 +2,7 @@
 
 Make container scanning great again :smiley:
 
-#### Installation
+### Installation
 
 The only things you need in order to use `dhscanner` is [docker][1].
 
