@@ -2,17 +2,16 @@
 
 Make container scanning great again :smiley:
 
-### Installation ( only [docker][1] is needed )
+### Installation
 
-- let's clone this repo with its dependent submodules !
+- clone this repo (with its submodules)
 
 ```bash
 $ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
 $ cd dhscanner
 ```
 
-- the software components of dhcanner reside in docker containers
-- being dev-oriented, those images currently take around 30 min. to build ( coffee break :coffee: !)
+- the software components of dhcanner reside in docker containers<sup>1</sup>
 
 ```bash
 $ docker build --tag host.front.js  --file dhscanner.front.js/Dockerfile  dhscanner.front.js
@@ -47,4 +46,6 @@ $ docker exec -it dhscanner bash
 $ python health_check_all_components.py
 ```
 
-[1]: https://docs.docker.com/
+---
+
+<sup>1</sup> currently takes around 30 min. (coffee break :coffee: ...)
