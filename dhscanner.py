@@ -10,8 +10,9 @@ ARGPARSE_PROG_DESC: typing.Final[str] = 'docker container scanner'
 ARGPARSE_INPUT_HELP: typing.Final[str] = "docker image saved as *.tar file"
 ARGPARSE_WORKDIR_HELP: typing.Final[str] = """
 the tar file content is extracted to the workdir and manipulated there.
+ideally, this is a new (non exiting) directory.
 if you want to override an existing directory (say from a previous scan),
-you have to explictly say so with the flag --erase-existing-workdir-if-needed
+you have to explictly say so with the flag --force
 """
 
 ARGPARSE_ERASE_OLD_WORKDIR: typing.Final[str] = """
@@ -31,12 +32,15 @@ def existing_tarfile(candidate) -> str:
 
 def parse_args() -> argparse.Namespace:
 
-    parser = argparse.ArgumentParser(description=ARGPARSE_PROG_DESC)
+    parser = argparse.ArgumentParser(
+        description=ARGPARSE_PROG_DESC
+    )
 
     parser.add_argument(
         '--input',
         required=True,
         nargs=1,
+        metavar="<image>.tar",
         type=existing_tarfile,
         help=ARGPARSE_INPUT_HELP
     )
@@ -50,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        '--erase-existing-workdir-if-needed',
+        '--force',
         action=argparse.BooleanOptionalAction,
         required=False,
         help=ARGPARSE_ERASE_OLD_WORKDIR
@@ -70,7 +74,7 @@ def check_workdir_new_or_erasable(args) -> bool:
     workdir = args_workdir[0]
     
     if os.path.exists(workdir):
-        if args.erase_existing_workdir_if_needed:
+        if args.force:
             os.rmdir(workdir)
         else:
             return False
