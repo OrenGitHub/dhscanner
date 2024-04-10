@@ -36,6 +36,13 @@ $ docker build --tag host.dhscanner  --file Dockerfile .
 $ docker run --network=host -d -t --name dhscanner host.dhscanner
 ```
 
+- now let's build a vulnerable express web server:
+
+```bash
+$ docker build --tag example --file dhscanner.examples/cve_2023_37466/example_00/Dockerfile dhscanner.examples/cve_2023_37466/example_00
+$ docker save -o example.tar example
+```
+
 - let's jump inside and do a health check !
 
 ```bash
