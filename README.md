@@ -43,7 +43,13 @@ $ docker build --tag example --file dhscanner.examples/cve_2023_37466/example_00
 $ docker save -o example.tar example
 ```
 
-- let's jump inside and do a health check !
+- and copy it inside our dhscanner docker:
+
+```bash
+$ docker cp example.tar dhscanner:/
+```
+
+- let's jump inside and do a quick health check !
 
 ```bash
 $ docker exec -it dhscanner bash
@@ -51,6 +57,13 @@ $ docker exec -it dhscanner bash
 # inside our docker !
 # let's make sure everyone's ready for work !
 $ python health_check_all_components.py
+[10/04/2024 ( 11:48:09 )] [INFO]: front.js ---> healthy 😃
+[10/04/2024 ( 11:48:09 )] [INFO]: front.rb ---> healthy 😃
+[10/04/2024 ( 11:48:09 )] [INFO]: parser.js ---> healthy 😃
+[10/04/2024 ( 11:48:09 )] [INFO]: parser.rb ---> healthy 😃
+
+# let's start scanning !
+$ python dhscanner.py example.tar
 ```
 
 ---
