@@ -26,6 +26,16 @@ an existing directory (say from a previous scan)
 DEFAULT_INPUT_NAME: typing.Final[str] = "nonexisting.tar"
 DEFAULT_WORKDIR_NAME: typing.Final[str] = "workdir"
 
+# which component listens on which port
+SERVICE_NAME: typing.Final[dict[int,str]] = {
+    8000: "front.js",
+    8001: "front.rb",
+    8002: "parser.js",
+    8003: "parser.rb"
+}
+
+TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
+
 def existing_tarfile(candidate) -> str:
 
     if os.path.isfile(candidate):
@@ -162,6 +172,35 @@ def configure_logger() -> None:
         stream=sys.stdout
     )
 
+def read_single_file(filename: str):
+
+    with open(filename) as fl:
+        code = fl.read()
+
+    return { 'source': ('source', code) }
+
+def add_js_ast(filename: str, asts) -> None:
+
+    one_file_at_a_time = read_single_file(filename)
+    response = requests.post(TO_JS_AST_BUILDER_URL, files=one_file_at_a_time)
+    asts['js'].append({ 'filename': filename, 'actual_ast': response.text })
+
+def parse_code(files: dict[str, list[str]]):
+
+    asts: dict = collections.defaultdict(list)
+
+    for language, filenames in files.items():
+        for filename in filenames:
+            match language:
+                case 'js':  add_js_ast(filename, asts)
+                case 'rb':  add_js_ast(filename, asts)
+                case 'py':  add_js_ast(filename, asts)
+                case 'ts':  add_js_ast(filename, asts)
+                case 'php': add_js_ast(filename, asts)
+                case   _  : pass
+
+    return asts
+
 def main() -> None:
 
     configure_logger()
@@ -182,6 +221,14 @@ def main() -> None:
     for language, filenames in files.items():
         for filename in filenames:
             logging.debug(f'collected {language}: {filename}')
+
+    language_asts = parse_code(files)
+
+    for language, asts in language_asts.items():
+        for ast in asts:
+            filename = ast['filename']
+            actual_ast = ast['actual_ast']
+            logging.debug(f'{filename} ---> {json.dumps(json.loads(actual_ast), indent=4)}')
 
 if __name__ == "__main__":
     main()
