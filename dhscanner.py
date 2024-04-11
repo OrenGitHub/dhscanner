@@ -35,6 +35,7 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
 }
 
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
+TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
 
 def existing_tarfile(candidate) -> str:
 
@@ -201,6 +202,30 @@ def parse_code(files: dict[str, list[str]]):
 
     return asts
 
+def add_dhscanner_ast_from_js(filename: str, code, asts):
+
+    content = { 'filename': filename, 'content': code}
+    response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_JS_URL, json=content)
+    asts['js'].append({ 'filename': filename, 'dhscanner_ast': response.text })
+
+def parse_language_asts(language_asts):
+
+    dhscanner_asts: dict = collections.defaultdict(list)
+
+    for language, asts in language_asts.items():
+        for ast in asts:
+            filename = ast['filename']
+            code = ast['actual_ast']
+            match language:
+                case 'js':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'rb':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'py':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'ts':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'php': add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case   _  : pass
+
+    return dhscanner_asts
+
 def main() -> None:
 
     configure_logger()
@@ -223,12 +248,11 @@ def main() -> None:
             logging.debug(f'collected {language}: {filename}')
 
     language_asts = parse_code(files)
+    dhscanner_asts = parse_language_asts(language_asts)
 
-    for language, asts in language_asts.items():
+    for language, asts in dhscanner_asts.items():
         for ast in asts:
-            filename = ast['filename']
-            actual_ast = ast['actual_ast']
-            logging.debug(f'{filename} ---> {json.dumps(json.loads(actual_ast), indent=4)}')
+            logging.debug(f'{ast}')
 
 if __name__ == "__main__":
     main()
