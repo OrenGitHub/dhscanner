@@ -250,9 +250,20 @@ def main() -> None:
     language_asts = parse_code(files)
     dhscanner_asts = parse_language_asts(language_asts)
 
+    total_num_files = collections.defaultdict(int)
+    num_parse_errors = collections.defaultdict(int)
     for language, asts in dhscanner_asts.items():
         for ast in asts:
-            logging.debug(f'{ast}')
+            actual_ast = json.loads(ast['dhscanner_ast'])
+            if 'status' in actual_ast and actual_ast['status'] == 'FAILED':
+                num_parse_errors[language] += 1
+                total_num_files[language] += 1
+            else:
+                logging.debug(f'{json.dumps(actual_ast, indent=4)}')
+                total_num_files[language] += 1
+
+    logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
+    logging.info(f'total num files: {json.dumps(total_num_files)}')
 
 if __name__ == "__main__":
     main()
