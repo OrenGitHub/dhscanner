@@ -1,10 +1,13 @@
 import os
+import sys
 import json
 import glob
 import typing
 import tarfile
+import logging
 import requests
 import argparse
+import collections
 
 ARGPARSE_PROG_DESC: typing.Final[str] = 'docker container scanner'
 ARGPARSE_INPUT_HELP: typing.Final[str] = "docker image saved as *.tar file"
@@ -19,6 +22,9 @@ ARGPARSE_ERASE_OLD_WORKDIR: typing.Final[str] = """
 use this flag in combination with --workdir, when you want to erase
 an existing directory (say from a previous scan)
 """
+
+DEFAULT_INPUT_NAME: typing.Final[str] = "nonexisting.tar"
+DEFAULT_WORKDIR_NAME: typing.Final[str] = "workdir"
 
 def existing_tarfile(candidate) -> str:
 
@@ -62,35 +68,120 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def check_workdir_new_or_erasable(args) -> bool:
+def get_workdir(args: argparse.Namespace) -> str:
 
     args_workdir = args.workdir
+
     if not isinstance(args_workdir, list):
-        return False
+        return DEFAULT_WORKDIR_NAME
 
     if len(args_workdir) != 1:
-        return False
+        return DEFAULT_WORKDIR_NAME
 
-    workdir = args_workdir[0]
+    return args_workdir[0]
+
+def get_input(args: argparse.Namespace) -> str:
+
+    args_input = args.input
+    if not isinstance(args_input, list):
+        return DEFAULT_INPUT_NAME
+
+    if len(args_input) != 1:
+        return DEFAULT_INPUT_NAME
+
+    return args_input[0]
+
+def check_workdir_new_or_erasable(args) -> bool:
+
+    args_workdir = get_workdir(args)
     
-    if os.path.exists(workdir):
+    if os.path.exists(args_workdir):
         if args.force:
-            os.rmdir(workdir)
+            os.rmdir(args_workdir)
         else:
+            logging.warning('specified workdir already exists !')
+            logging.warning('did you forget to specify --force ?')
             return False
     
-    os.mkdir(workdir)
+    os.mkdir(args_workdir)
     return True
 
 def check(args: argparse.Namespace) -> bool:
     return check_workdir_new_or_erasable(args)
 
+def untar_image_into_workdir(args: argparse.Namespace) -> bool:
+
+    imagename = get_input(args)
+    workdir = get_workdir(args)
+
+    imagetar = tarfile.open(name=imagename)
+    imagetar.extractall(path=workdir)
+    imagetar.close()
+
+    layers = glob.glob(f'{workdir}/**/layer.tar', recursive=True)
+    for layer in layers:
+        layertar = tarfile.open(name=layer)
+        dirname = os.path.dirname(layer)
+        layertar.extractall(path=dirname)
+        layertar.close()
+
+    # TODO: handle failures and logging
+    return True
+
+def third_party_js_file(filename: str) -> bool:
+
+    third_party_dirs = ['node_modules', '/opt/yarn', 'python3/dist-packages']
+    return any(subdir in filename for subdir in third_party_dirs)
+
+def collect_js_sources(workdir: str, files: dict[str,list[str]]) -> None:
+
+    filenames = glob.glob(f'{workdir}/**/*.js', recursive=True)
+    for filename in filenames:
+        if not third_party_js_file(filename):
+            files['js'].append(filename)
+
+def collect_sources(args: argparse.Namespace):
+
+    workdir = get_workdir(args)
+    files: dict[str, list[str]] = collections.defaultdict(list)
+
+    collect_js_sources(workdir, files)
+    # collect_rb_sources(files)
+    # collect_py_sources(files)
+    # collect_ts_sources(files)
+    # collect_phpsources(files)
+
+    return files
+
+def configure_logger() -> None:
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="[%(asctime)s] [%(levelname)s]: %(message)s",
+        datefmt="%d/%m/%Y ( %H:%M:%S )",
+        stream=sys.stdout
+    )
+
 def main() -> None:
 
+    configure_logger()
     args = parse_args()
+
     if check(args) == False:
-        print('ggg')
-    
+        logging.warning('invalid args - nothing was done 😳 ')
+        return
+
+    logging.info('everything looks great - starting to untar 😃 ')
+    untar_image_into_workdir(args)
+    logging.info('everything looks great - finished untar 😃 ')
+
+    files = collect_sources(args)
+    for language, filenames in files.items():
+        logging.info(f'found {len(filenames)} first party {language} files')
+
+    for language, filenames in files.items():
+        for filename in filenames:
+            logging.debug(f'collected {language}: {filename}')
 
 if __name__ == "__main__":
     main()
