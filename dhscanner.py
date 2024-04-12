@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import glob
+import magic
 import typing
 import tarfile
 import logging
@@ -129,12 +130,14 @@ def untar_image_into_workdir(args: argparse.Namespace) -> bool:
     imagetar.extractall(path=workdir)
     imagetar.close()
 
-    layers = glob.glob(f'{workdir}/**/layer.tar', recursive=True)
+    layers = glob.glob(f'{workdir}/**/*', recursive=True)
+
     for layer in layers:
-        layertar = tarfile.open(name=layer)
-        dirname = os.path.dirname(layer)
-        layertar.extractall(path=dirname)
-        layertar.close()
+        if os.path.isfile(layer) and 'POSIX tar archive' in magic.from_file(layer):
+            layertar = tarfile.open(name=layer)
+            dirname = os.path.dirname(layer)
+            layertar.extractall(path=dirname)
+            layertar.close()
 
     # TODO: handle failures and logging
     return True
