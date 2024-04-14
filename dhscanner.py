@@ -29,14 +29,16 @@ DEFAULT_WORKDIR_NAME: typing.Final[str] = "workdir"
 
 # which component listens on which port
 SERVICE_NAME: typing.Final[dict[int,str]] = {
-    8000: "front.js",
-    8001: "front.rb",
-    8002: "parser.js",
-    8003: "parser.rb"
+    8000: 'front.js',
+    8001: 'front.rb',
+    8002: 'parser.js',
+    8003: 'parser.rb',
+    8004: 'codegen'
 }
 
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
+TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
 
 def existing_tarfile(candidate) -> str:
 
@@ -229,6 +231,11 @@ def parse_language_asts(language_asts):
 
     return dhscanner_asts
 
+def codegen(dhscanner_asts):
+
+    response = requests.post(TO_CODEGEN_URL, json={ 'dirname': 'GGG', 'astsContent': dhscanner_asts })
+    return response.text
+
 def main() -> None:
 
     configure_logger()
@@ -252,9 +259,10 @@ def main() -> None:
 
     language_asts = parse_code(files)
     dhscanner_asts = parse_language_asts(language_asts)
+    valid_dhscanner_asts: dict = collections.defaultdict(list)
 
-    total_num_files = collections.defaultdict(int)
-    num_parse_errors = collections.defaultdict(int)
+    total_num_files: dict[str,int] = collections.defaultdict(int)
+    num_parse_errors: dict[str,int] = collections.defaultdict(int)
     for language, asts in dhscanner_asts.items():
         for ast in asts:
             actual_ast = json.loads(ast['dhscanner_ast'])
@@ -262,11 +270,15 @@ def main() -> None:
                 num_parse_errors[language] += 1
                 total_num_files[language] += 1
             else:
-                logging.debug(f'{json.dumps(actual_ast, indent=4)}')
+                # logging.debug(f'{json.dumps(actual_ast, indent=4)}')
+                valid_dhscanner_asts[language].append(actual_ast)
                 total_num_files[language] += 1
 
     logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
     logging.info(f'total num files: {json.dumps(total_num_files)}')
+
+    bitcodes = codegen(valid_dhscanner_asts['js'])
+    logging.debug(f'{json.dumps(bitcodes, indent=4)}')
 
 if __name__ == "__main__":
     main()
