@@ -233,8 +233,9 @@ def parse_language_asts(language_asts):
 
 def codegen(dhscanner_asts):
 
-    response = requests.post(TO_CODEGEN_URL, json={ 'dirname': 'GGG', 'astsContent': dhscanner_asts })
-    return response.text
+    content = { 'dirname': 'GGG', 'astsContent': dhscanner_asts }
+    response = requests.post(TO_CODEGEN_URL, json=content)
+    return { 'content': response.text }
 
 def main() -> None:
 
@@ -278,7 +279,8 @@ def main() -> None:
     logging.info(f'total num files: {json.dumps(total_num_files)}')
 
     bitcodes = codegen(valid_dhscanner_asts['js'])
-    logging.debug(f'{json.dumps(bitcodes, indent=4)}')
+    content = bitcodes['content']
+    logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
 
 if __name__ == "__main__":
     main()
