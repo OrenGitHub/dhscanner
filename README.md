@@ -65,7 +65,7 @@ $ python health_check_all_components.py
 [10/04/2024 ( 11:48:09 )] [INFO]: parser.rb ---> healthy 😃
 
 # let's start scanning !
-$ python dhscanner.py example.tar
+$ python dhscanner.py --input=example.tar --workdir=workdir
 ```
 
 ---
