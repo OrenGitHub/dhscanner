@@ -1,0 +1,19 @@
+services:
+    frontjs:
+        build:
+            context: dhscanner.front.js
+            dockerfile: Dockerfile
+        ports:
+            - 8000:3000
+    parserjs:
+        build:
+            context: dhscanner.parser.js
+            dockerfile: Dockerfile
+        ports:
+            - 8002:3000
+    codegen:
+        build:
+            context: dhscanner.codegen
+            dockerfile: Dockerfile
+        ports:
+            - 8004:3000

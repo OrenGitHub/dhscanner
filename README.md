@@ -14,21 +14,7 @@ $ cd dhscanner
 - the software components of dhcanner reside in docker containers<sup>1</sup>
 
 ```bash
-$ docker build --tag host.front.js  --file dhscanner.front.js/Dockerfile  dhscanner.front.js
-$ docker build --tag host.front.rb  --file dhscanner.front.rb/Dockerfile  dhscanner.front.rb
-$ docker build --tag host.parser.js --file dhscanner.parser.js/Dockerfile dhscanner.parser.js
-$ docker build --tag host.parser.rb --file dhscanner.parser.rb/Dockerfile dhscanner.parser.rb
-$ docker build --tag host.codegen   --file dhscanner.codegen/Dockerfile   dhscanner.codegen
-```
-
-- local host ports are distributed *consecutively*	
-
-```bash
-$ docker run -p 8000:3000 -d -t --name front.js  host.front.js
-$ docker run -p 8001:3000 -d -t --name front.rb  host.front.rb
-$ docker run -p 8002:3000 -d -t --name parser.js host.parser.js
-$ docker run -p 8003:3000 -d -t --name parser.rb host.parser.rb
-$ docker run -p 8004:3000 -d -t --name codegen   host.codegen
+$ docker compose up -d
 ```
 
 - the dhscanner manager also runs dockerized, for maximal portability
@@ -70,4 +56,4 @@ $ python dhscanner.py --input=example.tar --workdir=workdir
 
 ---
 
-<sup>1</sup> currently takes around 30 min. (coffee break :coffee: ...)
+<sup>1</sup> currently takes around 15 min. (coffee break :coffee: ...)
