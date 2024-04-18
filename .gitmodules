@@ -16,3 +16,6 @@
 [submodule "dhscanner.codegen"]
 	path = dhscanner.codegen
 	url = https://github.com/OrenGitHub/dhscanner.codegen
+[submodule "dhscanner.query.engine"]
+	path = dhscanner.query.engine
+	url = https://github.com/OrenGitHub/dhscanner.query.engine
