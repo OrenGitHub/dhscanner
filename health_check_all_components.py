@@ -6,7 +6,7 @@ import requests
 
 # ports are assigned *consecutively* from 8000 upwards
 FIRST_PORT: typing.Final[int] = 8000
-LAST_PORT: typing.Final[int] = 8004
+LAST_PORT: typing.Final[int] = 8005
 
 # which component listens on which port
 SERVICE_NAME: typing.Final[dict[int,str]] = {
@@ -14,7 +14,8 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
     8001: "front.rb",
     8002: "parser.js",
     8003: "parser.rb",
-    8004: "codegen"
+    8004: "codegen",
+    8005: "kbgen"
 }
 
 # this is just a wrapper around SERVICE_NAME

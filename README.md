@@ -15,6 +15,9 @@ $ cd dhscanner
 
 ```bash
 $ docker compose up -d
+
+# to remove all containers and all images:
+# $ docker compose down --rmi local
 ```
 
 - the dhscanner manager also runs dockerized, for maximal portability
@@ -49,6 +52,8 @@ $ python health_check_all_components.py
 [10/04/2024 ( 11:48:09 )] [INFO]: front.rb ---> healthy 😃
 [10/04/2024 ( 11:48:09 )] [INFO]: parser.js ---> healthy 😃
 [10/04/2024 ( 11:48:09 )] [INFO]: parser.rb ---> healthy 😃
+[10/04/2024 ( 11:48:09 )] [INFO]: codegen ---> healthy 😃
+[10/04/2024 ( 11:48:09 )] [INFO]: kbgen ---> healthy 😃
 
 # let's start scanning !
 $ python dhscanner.py --input=example.tar --workdir=workdir
