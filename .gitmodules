@@ -19,3 +19,6 @@
 [submodule "dhscanner.query.engine"]
 	path = dhscanner.query.engine
 	url = https://github.com/OrenGitHub/dhscanner.query.engine
+[submodule "dhscanner.kbgen"]
+	path = dhscanner.kbgen
+	url = https://github.com/OrenGitHub/dhscanner.kbgen

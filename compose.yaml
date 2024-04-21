@@ -17,3 +17,9 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8004:3000
+    kbgen:
+        build:
+            context: dhscanner.kbgen
+            dockerfile: Dockerfile
+        ports:
+            - 8005:3000
