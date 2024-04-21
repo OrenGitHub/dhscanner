@@ -287,10 +287,11 @@ def main() -> None:
 
     bitcodes = codegen(valid_dhscanner_asts['js'])
     content = bitcodes['content']
-    logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
+    # logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
 
     kb = kbgen(json.loads(content))
-    logging.debug(f'{json.dumps(kb, indent=4)}')
+    content = kb['content']
+    logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
 
 if __name__ == "__main__":
     main()
