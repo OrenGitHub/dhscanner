@@ -33,12 +33,14 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
     8001: 'front.rb',
     8002: 'parser.js',
     8003: 'parser.rb',
-    8004: 'codegen'
+    8004: 'codegen',
+    8006: 'kbgen'
 }
 
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
 TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
+TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8006/kbgen'
 
 def existing_tarfile(candidate) -> str:
 
@@ -237,6 +239,11 @@ def codegen(dhscanner_asts):
     response = requests.post(TO_CODEGEN_URL, json=content)
     return { 'content': response.text }
 
+def kbgen(callables):
+
+    response = requests.post(TO_KBGEN_URL, json=callables)
+    return { 'content': response.text }
+
 def main() -> None:
 
     configure_logger()
@@ -281,6 +288,9 @@ def main() -> None:
     bitcodes = codegen(valid_dhscanner_asts['js'])
     content = bitcodes['content']
     logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
+
+    kb = kbgen(json.loads(content))
+    logging.debug(f'{json.dumps(kb, indent=4)}')
 
 if __name__ == "__main__":
     main()
