@@ -34,13 +34,13 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
     8002: 'parser.js',
     8003: 'parser.rb',
     8004: 'codegen',
-    8005: 'kbgen'
+    8006: 'kbgen'
 }
 
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
 TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
-TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8005/kbgen'
+TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8006/kbgen'
 
 def existing_tarfile(candidate) -> str:
 
@@ -174,7 +174,7 @@ def collect_sources(args: argparse.Namespace):
 def configure_logger() -> None:
 
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s]: %(message)s",
         datefmt="%d/%m/%Y ( %H:%M:%S )",
         stream=sys.stdout
@@ -278,7 +278,7 @@ def main() -> None:
                 num_parse_errors[language] += 1
                 total_num_files[language] += 1
             else:
-                # logging.debug(f'{json.dumps(actual_ast, indent=4)}')
+                logging.debug(f'{json.dumps(actual_ast, indent=4)}')
                 valid_dhscanner_asts[language].append(actual_ast)
                 total_num_files[language] += 1
 
@@ -290,8 +290,13 @@ def main() -> None:
     # logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
 
     kb = kbgen(json.loads(content))
-    content = kb['content']
-    logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
+    content = json.loads(kb['content'])['content']
+
+    with open('kb.pl', 'w') as fl:
+        fl.write('\n'.join(content))
+        fl.write('\n')
+
+    logging.info('wrote knowledge base: kb.pl')
 
 if __name__ == "__main__":
     main()
