@@ -23,3 +23,9 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8005:3000
+    queryengine:
+        build:
+            context: dhscanner.query.engine
+            dockerfile: Dockerfile
+        ports:
+            - 8007:5000
