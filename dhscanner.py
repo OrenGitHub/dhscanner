@@ -34,13 +34,17 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
     8002: 'parser.js',
     8003: 'parser.rb',
     8004: 'codegen',
-    8006: 'kbgen'
+    8006: 'kbgen',
+    8007: 'query.engine'
 }
 
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
 TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
 TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8006/kbgen'
+TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8007/check'
+
+CVES: typing.Final[list[str]] = [ 'cve_2023_37466' ]
 
 def existing_tarfile(candidate) -> str:
 
@@ -244,6 +248,14 @@ def kbgen(callables):
     response = requests.post(TO_KBGEN_URL, json=callables)
     return { 'content': response.text }
 
+def query_engine(filename: str):
+
+    just_the_kb_file = read_single_file(filename)
+    for cve in CVES:
+        url = f'{TO_QENGINE_URL}/{cve}'
+        response = requests.post(url, files=just_the_kb_file)
+        logging.info(f'{cve}: {response.text}')
+
 def main() -> None:
 
     configure_logger()
@@ -297,6 +309,8 @@ def main() -> None:
         fl.write('\n')
 
     logging.info('wrote knowledge base: kb.pl')
+
+    query_engine('kb.pl')
 
 if __name__ == "__main__":
     main()
