@@ -260,7 +260,10 @@ def query_engine(filename: str):
     for cve in CVES:
         url = f'{TO_QENGINE_URL}/{cve}'
         response = requests.post(url, files=just_the_kb_file)
-        logging.info(f'{cve}: {response.text}')
+        status = ' looking good 👌 '
+        if "yes" in response.text:
+            status = 'oh no ! it looks bad 😬😬😬 '
+        logging.info(f'[ {cve} ] .............. : {status}')
 
 def main() -> None:
 
@@ -326,6 +329,7 @@ def main() -> None:
         fl.write('\n')
 
     logging.info('[ step 5 ] prolog file gen ...... : finished 😃 ')
+    logging.info('[  cves  ] ...................... : starting 🙏 ')
 
     query_engine('kb.pl')
 

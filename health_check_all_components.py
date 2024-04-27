@@ -4,18 +4,15 @@ import typing
 import logging
 import requests
 
-# ports are assigned *consecutively* from 8000 upwards
-FIRST_PORT: typing.Final[int] = 8000
-LAST_PORT: typing.Final[int] = 8005
-
 # which component listens on which port
 SERVICE_NAME: typing.Final[dict[int,str]] = {
     8000: "front.js",
-    8001: "front.rb",
+#    8001: "front.rb",
     8002: "parser.js",
-    8003: "parser.rb",
+#    8003: "parser.rb",
     8004: "codegen",
-    8005: "kbgen"
+    8006: "kbgen",
+    8007: "query.engine"
 }
 
 # this is just a wrapper around SERVICE_NAME
@@ -29,7 +26,7 @@ def component_name_listenning_on(port: int) -> str:
 
 def health_check_all_components() -> None:
 
-    for port in range(FIRST_PORT, LAST_PORT + 1):
+    for port in SERVICE_NAME.keys():
         try:
             url = f'http://127.0.0.1:{port}/healthcheck'
             component = component_name_listenning_on(port)
