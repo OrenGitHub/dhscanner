@@ -34,14 +34,14 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
     8002: 'parser.js',
     8003: 'parser.rb',
     8004: 'codegen',
-    8006: 'kbgen',
+    8005: 'kbgen',
     8007: 'query.engine'
 }
 
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
 TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
-TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8006/kbgen'
+TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8005/kbgen'
 TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8007/check'
 
 CVES: typing.Final[list[str]] = [ 'cve_2023_37466' ]
