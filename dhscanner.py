@@ -129,6 +129,12 @@ def check_workdir_new_or_erasable(args) -> bool:
 def check(args: argparse.Namespace) -> bool:
     return check_workdir_new_or_erasable(args)
 
+def get_docker_tar_size(args: argparse.Namespace) -> int:
+    
+    image_tar_name = get_input(args)
+    num_bytes = os.path.getsize(image_tar_name)
+    return num_bytes / (1024 * 1024 * 1024)
+
 def untar_image_into_workdir(args: argparse.Namespace) -> bool:
 
     imagename = get_input(args)
@@ -265,19 +271,24 @@ def main() -> None:
         logging.warning('invalid args - nothing was done 😳 ')
         return
 
-    logging.info('everything looks great - starting to untar 😃 ')
+    docker_tar_name = get_input(args)
+    docker_tar_size = get_docker_tar_size(args)
+    logging.info(f'[ start  ] {docker_tar_name} ({docker_tar_size:.2f} GB) 😃')
     untar_image_into_workdir(args)
-    logging.info('everything looks great - finished untar 😃 ')
+    logging.info('[ step 0 ] untar docker image ... : finished 😃 ')
 
     files = collect_sources(args)
     for language, filenames in files.items():
-        logging.info(f'found {len(filenames)} first party {language} files')
+        logging.debug(f'found {len(filenames)} first party {language} files')
 
     for language, filenames in files.items():
         for filename in filenames:
             logging.debug(f'collected {language}: {filename}')
 
     language_asts = parse_code(files)
+
+    logging.info('[ step 1 ] native asts .......... : finished 😃 ')
+
     dhscanner_asts = parse_language_asts(language_asts)
     valid_dhscanner_asts: dict = collections.defaultdict(list)
 
@@ -294,21 +305,27 @@ def main() -> None:
                 valid_dhscanner_asts[language].append(actual_ast)
                 total_num_files[language] += 1
 
-    logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
-    logging.info(f'total num files: {json.dumps(total_num_files)}')
+    # logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
+    # logging.info(f'total num files: {json.dumps(total_num_files)}')
 
     bitcodes = codegen(valid_dhscanner_asts['js'])
+    
+    logging.info('[ step 2 ] dhscanner asts ....... : finished 😃 ')
+    
     content = bitcodes['content']
+
+    logging.info('[ step 3 ] code gen ............. : finished 😃 ')
     # logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
 
     kb = kbgen(json.loads(content))
+    logging.info('[ step 4 ] knowledge base gen ... : finished 😃 ')
     content = json.loads(kb['content'])['content']
 
     with open('kb.pl', 'w') as fl:
-        fl.write('\n'.join(content))
+        fl.write('\n'.join(sorted(content)))
         fl.write('\n')
 
-    logging.info('wrote knowledge base: kb.pl')
+    logging.info('[ step 5 ] prolog file gen ...... : finished 😃 ')
 
     query_engine('kb.pl')
 
