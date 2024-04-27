@@ -11,7 +11,7 @@ SERVICE_NAME: typing.Final[dict[int,str]] = {
     8002: "parser.js",
 #    8003: "parser.rb",
     8004: "codegen",
-    8006: "kbgen",
+    8005: "kbgen",
     8007: "query.engine"
 }
 
