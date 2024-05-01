@@ -25,3 +25,6 @@
 [submodule "dhscanner.front.php"]
 	path = dhscanner.front.php
 	url = https://github.com/OrenGitHub/dhscanner.front.php
+[submodule "dhscanner.parsers"]
+	path = dhscanner.parsers
+	url = https://github.com/OrenGitHub/dhscanner.parsers
