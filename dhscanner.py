@@ -50,7 +50,7 @@ TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
 TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8006/kbgen'
 TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8007/check'
 
-CVES: typing.Final[list[str]] = [ 'cve_2023_37466' ]
+CVES: typing.Final[list[str]] = [ 'cve_2023_37466', 'ghsa_97m3' ]
 
 def existing_tarfile(candidate) -> str:
 
@@ -243,6 +243,8 @@ def add_phpast(filename: str, asts) -> None:
         cookies=cookies
     )
 
+    logging.debug(response.text)
+
     asts['php'].append({ 'filename': filename, 'actual_ast': response.text })
 
 def parse_code(files: dict[str, list[str]]):
@@ -309,10 +311,10 @@ def query_engine(filename: str):
     for cve in CVES:
         url = f'{TO_QENGINE_URL}/{cve}'
         response = requests.post(url, files=just_the_kb_file)
-        status = ' looking good 👌 '
+        status = 'looking good 👌 '
         if "yes" in response.text:
             status = 'oh no ! it looks bad 😬😬😬 '
-        logging.info(f'[ {cve} ] .............. : {status}')
+        logging.info(f'[ {cve:<14} ] .............. : {status}')
 
 def main() -> None:
 
