@@ -29,3 +29,15 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8007:5000
+    frontphp:
+        build:
+            context: dhscanner.front.php
+            dockerfile: Dockerfile
+        ports:
+            - 8008:8000
+    parsers:
+        build:
+            context: dhscanner.parsers
+            dockerfile: Dockerfile
+        ports:
+            - 8009:3000
