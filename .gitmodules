@@ -4,9 +4,6 @@
 [submodule "dhscanner.front.js"]
 	path = dhscanner.front.js
 	url = https://github.com/OrenGitHub/dhscanner.front.js
-[submodule "dhscanner.front.rb"]
-	path = dhscanner.front.rb
-	url = https://github.com/OrenGitHub/dhscanner.front.rb
 [submodule "dhscanner.codegen"]
 	path = dhscanner.codegen
 	url = https://github.com/OrenGitHub/dhscanner.codegen
