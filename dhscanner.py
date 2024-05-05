@@ -43,7 +43,7 @@ TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/
 TO_PHPAST_INIT_CSRF: typing.Final[str] = 'http://127.0.0.1:8008/token'
 TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8008/to/php/ast'
 
-TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/to/dhscanner/ast'
+TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8009/from/js/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8009/from/php/to/dhscanner/ast'
 
 TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
