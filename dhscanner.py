@@ -164,7 +164,7 @@ def untar_image_into_workdir(args: argparse.Namespace) -> bool:
 
 def third_party_js_file(filename: str) -> bool:
 
-    third_party_dirs = ['node_modules', 'vendor', '/opt/yarn', 'python3/dist-packages']
+    third_party_dirs = ['node_modules', 'vendor', '/opt/yarn', 'python3/dist-packages', 'resources']
     return any(subdir in filename for subdir in third_party_dirs)
 
 def collect_js_sources(workdir: str, files: dict[str,list[str]]) -> None:
@@ -362,8 +362,8 @@ def main() -> None:
     # logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
     # logging.info(f'total num files: {json.dumps(total_num_files)}')
 
-    bitcodes = codegen(valid_dhscanner_asts['js'])
-    
+    bitcodes = codegen(valid_dhscanner_asts['js'] + valid_dhscanner_asts['php'])
+
     logging.info('[ step 2 ] dhscanner asts ....... : finished 😃 ')
     
     content = bitcodes['content']
