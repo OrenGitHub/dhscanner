@@ -11,12 +11,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8008:8000
-    parserjs:
+    parsers:
         build:
-            context: dhscanner.parser.js
+            context: dhscanner.parsers
             dockerfile: Dockerfile
         ports:
-            - 8002:3000
+            - 8009:3000
     codegen:
         build:
             context: dhscanner.codegen
@@ -35,9 +35,3 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8007:5000
-    parsers:
-        build:
-            context: dhscanner.parsers
-            dockerfile: Dockerfile
-        ports:
-            - 8009:3000
