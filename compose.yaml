@@ -1,10 +1,16 @@
 services:
     frontjs:
         build:
-            context: dhscanner.front.js
+            context: dhscanner.0.fronts/js
             dockerfile: Dockerfile
         ports:
             - 8000:3000
+    frontphp:
+        build:
+            context: dhscanner.0.fronts/php
+            dockerfile: Dockerfile
+        ports:
+            - 8008:8000
     parserjs:
         build:
             context: dhscanner.parser.js
@@ -29,12 +35,6 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8007:5000
-    frontphp:
-        build:
-            context: dhscanner.front.php
-            dockerfile: Dockerfile
-        ports:
-            - 8008:8000
     parsers:
         build:
             context: dhscanner.parsers
