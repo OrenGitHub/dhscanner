@@ -30,6 +30,8 @@ DEFAULT_WORKDIR_NAME: typing.Final[str] = "workdir"
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_PHPAST_INIT_CSRF: typing.Final[str] = 'http://127.0.0.1:8001/token'
 TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8001/to/php/ast'
+TO_PY_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8006/to/native/py/ast'
+
 
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/js/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8002/from/php/to/dhscanner/ast'
@@ -209,6 +211,12 @@ def add_js_ast(filename: str, asts) -> None:
     response = requests.post(TO_JS_AST_BUILDER_URL, files=one_file_at_a_time)
     asts['js'].append({ 'filename': filename, 'actual_ast': response.text })
 
+def add_py_ast(filename: str, asts) -> None:
+
+    one_file_at_a_time = read_single_file(filename)
+    response = requests.post(TO_PY_AST_BUILDER_URL, files=one_file_at_a_time)
+    asts['py'].append({ 'filename': filename, 'actual_ast': response.text })
+
 def add_phpast(filename: str, asts) -> None:
 
     if not filename.endswith('web.php'):
@@ -244,7 +252,7 @@ def parse_code(files: dict[str, list[str]]):
             match language:
                 case 'js':  add_js_ast(filename, asts)
                 case 'rb':  add_js_ast(filename, asts)
-                case 'py':  add_js_ast(filename, asts)
+                case 'py':  add_py_ast(filename, asts)
                 case 'ts':  add_js_ast(filename, asts)
                 case 'php': add_phpast(filename, asts)
                 case   _  : pass
@@ -256,6 +264,12 @@ def add_dhscanner_ast_from_js(filename: str, code, asts):
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_JS_URL, json=content)
     asts['js'].append({ 'filename': filename, 'dhscanner_ast': response.text })
+
+def add_dhscanner_ast_from_py(filename: str, code, asts):
+
+    content = { 'filename': filename, 'content': code}
+    response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PY_URL, json=content)
+    asts['py'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
 def add_dhscanner_ast_fromphp(filename: str, code, asts):
 
@@ -275,7 +289,7 @@ def parse_language_asts(language_asts):
             match language:
                 case 'js':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
                 case 'rb':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
-                case 'py':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'py':  add_dhscanner_ast_from_py(filename, code, dhscanner_asts)
                 case 'ts':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
                 case 'php': add_dhscanner_ast_fromphp(filename, code, dhscanner_asts)
                 case   _  : pass
@@ -350,7 +364,11 @@ def main() -> None:
     # logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
     # logging.info(f'total num files: {json.dumps(total_num_files)}')
 
-    bitcodes = codegen(valid_dhscanner_asts['js'] + valid_dhscanner_asts['php'])
+    bitcodes = codegen(
+        valid_dhscanner_asts['js'] +
+        valid_dhscanner_asts['py'] +
+        valid_dhscanner_asts['php']
+    )
 
     logging.info('[ step 2 ] dhscanner asts ....... : finished 😃 ')
     
