@@ -11,6 +11,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8001:8000
+    frontpy:
+        build:
+            context: dhscanner.0.fronts/py
+            dockerfile: Dockerfile
+        ports:
+            - 8006:5000
     parsers:
         build:
             context: dhscanner.1.parsers
