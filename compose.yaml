@@ -10,28 +10,28 @@ services:
             context: dhscanner.0.fronts/php
             dockerfile: Dockerfile
         ports:
-            - 8008:8000
+            - 8001:8000
     parsers:
         build:
-            context: dhscanner.parsers
+            context: dhscanner.1.parsers
             dockerfile: Dockerfile
         ports:
-            - 8009:3000
+            - 8002:3000
     codegen:
         build:
             context: dhscanner.codegen
             dockerfile: Dockerfile
         ports:
-            - 8004:3000
+            - 8003:3000
     kbgen:
         build:
             context: dhscanner.kbgen
             dockerfile: Dockerfile
         ports:
-            - 8005:3000
+            - 8004:3000
     queryengine:
         build:
             context: dhscanner.query.engine
             dockerfile: Dockerfile
         ports:
-            - 8007:5000
+            - 8005:5000

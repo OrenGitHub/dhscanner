@@ -27,28 +27,16 @@ an existing directory (say from a previous scan)
 DEFAULT_INPUT_NAME: typing.Final[str] = "nonexisting.tar"
 DEFAULT_WORKDIR_NAME: typing.Final[str] = "workdir"
 
-# which component listens on which port
-SERVICE_NAME: typing.Final[dict[int,str]] = {
-    8000: 'front.js',
-    8001: 'front.rb',
-    8002: 'parser.js',
-    8003: 'parser.rb',
-    8004: 'codegen',
-    8005: 'kbgen',
-    8007: 'query.engine',
-    8008: 'front.php'
-}
-
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
-TO_PHPAST_INIT_CSRF: typing.Final[str] = 'http://127.0.0.1:8008/token'
-TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8008/to/php/ast'
+TO_PHPAST_INIT_CSRF: typing.Final[str] = 'http://127.0.0.1:8001/token'
+TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8001/to/php/ast'
 
-TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8009/from/js/to/dhscanner/ast'
-TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8009/from/php/to/dhscanner/ast'
+TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/js/to/dhscanner/ast'
+TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8002/from/php/to/dhscanner/ast'
 
-TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/codegen'
-TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8005/kbgen'
-TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8007/check'
+TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8003/codegen'
+TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/kbgen'
+TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8005/check'
 
 CVES: typing.Final[list[str]] = [ 'cve_2023_37466', 'ghsa_97m3' ]
 

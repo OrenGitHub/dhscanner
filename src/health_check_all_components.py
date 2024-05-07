@@ -7,12 +7,11 @@ import requests
 # which component listens on which port
 SERVICE_NAME: typing.Final[dict[int,str]] = {
     8000: "front.js",
-#    8001: "front.rb",
-    8002: "parser.js",
-#    8003: "parser.rb",
-    8004: "codegen",
-    8005: "kbgen",
-    8007: "query.engine"
+    8001: "front.php",
+    8002: "parsers",
+    8003: "codegen",
+    8004: "kbgen",
+    8005: "query.engine"
 }
 
 # this is just a wrapper around SERVICE_NAME
