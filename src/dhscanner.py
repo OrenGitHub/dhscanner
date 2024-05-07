@@ -225,7 +225,7 @@ def add_phpast(filename: str, asts) -> None:
         code = fl.read()
 
     response = session.post(
-        'http://127.0.0.1:8008/to/php/ast',
+        'http://127.0.0.1:8001/to/php/ast',
         files={'source': ('source', code)},
         headers=headers,
         cookies=cookies
