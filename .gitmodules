@@ -13,3 +13,6 @@
 [submodule "dhscanner.0.fronts"]
 	path = dhscanner.0.fronts
 	url = https://github.com/OrenGitHub/dhscanner.0.fronts
+[submodule "dhscanner.1.parsers"]
+	path = dhscanner.1.parsers
+	url = https://github.com/OrenGitHub/dhscanner.1.parsers
