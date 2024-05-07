@@ -46,25 +46,18 @@ $ docker cp example.tar dhscanner:/
 $ docker exec -it dhscanner bash
 
 # inside our docker !
-# let's make sure everyone's ready for work !
-$ python health_check_all_components.py
-[27/04/2024 ( 18:11:13 )] [INFO]: front.js ---> healthy 😃
-[27/04/2024 ( 18:11:13 )] [INFO]: parser.js ---> healthy 😃
-[27/04/2024 ( 18:11:13 )] [INFO]: codegen ---> healthy 😃
-[27/04/2024 ( 18:11:13 )] [INFO]: kbgen ---> healthy 😃
-[27/04/2024 ( 18:11:13 )] [INFO]: query.engine ---> healthy 😃
-
 # let's start scanning !
-$ python dhscanner.py --input=example.tar --workdir=workdir
-[27/04/2024 ( 18:11:49 )] [INFO]: [ start  ] example.tar (1.06 GB) 😃
-[27/04/2024 ( 18:11:52 )] [INFO]: [ step 0 ] untar docker image ... : finished 😃
-[27/04/2024 ( 18:11:53 )] [INFO]: [ step 1 ] native asts .......... : finished 😃
-[27/04/2024 ( 18:11:53 )] [INFO]: [ step 2 ] dhscanner asts ....... : finished 😃
-[27/04/2024 ( 18:11:53 )] [INFO]: [ step 3 ] code gen ............. : finished 😃
-[27/04/2024 ( 18:11:53 )] [INFO]: [ step 4 ] knowledge base gen ... : finished 😃
-[27/04/2024 ( 18:11:53 )] [INFO]: [ step 5 ] prolog file gen ...... : finished 😃
-[27/04/2024 ( 18:11:53 )] [INFO]: [  cves  ] ...................... : starting 🙏
-[27/04/2024 ( 18:11:53 )] [INFO]: [ cve_2023_37466 ] .............. : oh no ! it looks bad 😬😬😬
+$ python src/dhscanner.py --input=example.tar --workdir=workdir
+[07/05/2024 ( 04:59:02 )] [INFO]: [ start  ] example.tar (1.06 GB) 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [ step 0 ] untar docker image ... : finished 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [ step 1 ] native asts .......... : finished 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [ step 2 ] dhscanner asts ....... : finished 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [ step 3 ] code gen ............. : finished 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [ step 4 ] knowledge base gen ... : finished 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [ step 5 ] prolog file gen ...... : finished 😃
+[07/05/2024 ( 04:59:05 )] [INFO]: [  cves  ] ...................... : starting 🙏
+[07/05/2024 ( 04:59:06 )] [INFO]: [ cve_2023_37466 ] .............. : oh no ! it looks bad 😬😬😬
+[07/05/2024 ( 04:59:06 )] [INFO]: [ ghsa_97m3      ] .............. : looking good 👌
 ```
 
 ---
