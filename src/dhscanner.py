@@ -161,8 +161,9 @@ def collect_js_sources(workdir: str, files: dict[str,list[str]]) -> None:
 
     filenames = glob.glob(f'{workdir}/**/*.js', recursive=True)
     for filename in filenames:
-        if not third_party_js_file(filename):
-            files['js'].append(filename)
+        if os.path.isfile(filename):
+            if not third_party_js_file(filename):
+                files['js'].append(filename)
 
 def third_party_php_file(filename: str) -> bool:
 
