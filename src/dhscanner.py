@@ -32,7 +32,7 @@ TO_PHPAST_INIT_CSRF: typing.Final[str] = 'http://127.0.0.1:8001/token'
 TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8001/to/php/ast'
 TO_PY_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8006/to/native/py/ast'
 
-
+TO_DHSCANNER_AST_BUILDER_FROM_PY_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/py/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/js/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8002/from/php/to/dhscanner/ast'
 
@@ -125,7 +125,7 @@ def check_workdir_new_or_erasable(args) -> bool:
 def check(args: argparse.Namespace) -> bool:
     return check_workdir_new_or_erasable(args)
 
-def get_docker_tar_size(args: argparse.Namespace) -> int:
+def get_docker_tar_size(args: argparse.Namespace) -> float:
     
     image_tar_name = get_input(args)
     num_bytes = os.path.getsize(image_tar_name)
@@ -177,6 +177,30 @@ def collect_phpsources(workdir: str, files: dict[str,list[str]]) -> None:
         if not third_party_php_file(filename):
             files['php'].append(filename)
 
+def third_party_py_file(filename: str) -> bool:
+
+    third_party_dirs = [
+        '/python3/',
+        '/python3.8/',
+        '/python3.10/',
+        '/python3.9/',
+        '/pytorch/',
+        '/examples/',
+        '/tutorials/',
+        '/cuda-12.1/',
+        'node_modules',
+        '/X11/'
+    ]
+
+    return any(subdir in filename for subdir in third_party_dirs)
+
+def collect_py_sources(workdir: str, files: dict[str,list[str]]) -> None:
+
+    filenames = glob.glob(f'{workdir}/**/*.py', recursive=True)
+    for filename in filenames:
+        if not third_party_py_file(filename):
+            files['py'].append(filename)
+
 def collect_sources(args: argparse.Namespace):
 
     workdir = get_workdir(args)
@@ -184,8 +208,8 @@ def collect_sources(args: argparse.Namespace):
 
     collect_js_sources(workdir, files)
     collect_phpsources(workdir, files)
+    collect_py_sources(workdir, files)
     # collect_rb_sources(files)
-    # collect_py_sources(files)
     # collect_ts_sources(files)
 
     return files
@@ -217,6 +241,7 @@ def add_py_ast(filename: str, asts) -> None:
     one_file_at_a_time = read_single_file(filename)
     response = requests.post(TO_PY_AST_BUILDER_URL, files=one_file_at_a_time)
     asts['py'].append({ 'filename': filename, 'actual_ast': response.text })
+    logging.info(f'{filename}')
 
 def add_phpast(filename: str, asts) -> None:
 
@@ -324,14 +349,14 @@ def main() -> None:
     configure_logger()
     args = parse_args()
 
-    if check(args) == False:
-        logging.warning('invalid args - nothing was done 😳 ')
-        return
+    # if check(args) == False:
+    #    logging.warning('invalid args - nothing was done 😳 ')
+    #    return
 
     docker_tar_name = get_input(args)
     docker_tar_size = get_docker_tar_size(args)
     logging.info(f'[ start  ] {docker_tar_name} ({docker_tar_size:.2f} GB) 😃')
-    untar_image_into_workdir(args)
+    # untar_image_into_workdir(args)
     logging.info('[ step 0 ] untar docker image ... : finished 😃 ')
 
     files = collect_sources(args)
@@ -353,14 +378,20 @@ def main() -> None:
     num_parse_errors: dict[str,int] = collections.defaultdict(int)
     for language, asts in dhscanner_asts.items():
         for ast in asts:
-            actual_ast = json.loads(ast['dhscanner_ast'])
-            if 'status' in actual_ast and actual_ast['status'] == 'FAILED':
-                num_parse_errors[language] += 1
-                total_num_files[language] += 1
-            else:
-                logging.debug(f'{json.dumps(actual_ast, indent=4)}')
-                valid_dhscanner_asts[language].append(actual_ast)
-                total_num_files[language] += 1
+            try:
+                actual_ast = json.loads(ast['dhscanner_ast'])
+                if 'status' in actual_ast and actual_ast['status'] == 'FAILED':
+                    num_parse_errors[language] += 1
+                    total_num_files[language] += 1
+                    continue
+
+            except ValueError:
+                pass 
+
+            # file failed
+            logging.debug(f'{json.dumps(actual_ast, indent=4)}')
+            valid_dhscanner_asts[language].append(actual_ast)
+            total_num_files[language] += 1
 
     # logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
     # logging.info(f'total num files: {json.dumps(total_num_files)}')
@@ -378,8 +409,13 @@ def main() -> None:
     logging.info('[ step 3 ] code gen ............. : finished 😃 ')
     # logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
 
-    kb = kbgen(json.loads(content))
-    logging.info('[ step 4 ] knowledge base gen ... : finished 😃 ')
+    try:
+        kb = kbgen(json.loads(content))
+        logging.info('[ step 4 ] knowledge base gen ... : finished 😃 ')
+    except ValueError:
+        logging.warning('[ step 4 ] knowledge base gen ... : failed 😬 ')
+        return
+
     content = json.loads(kb['content'])['content']
 
     with open('kb.pl', 'w') as fl:
