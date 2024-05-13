@@ -257,9 +257,6 @@ def add_js_ast(filename: str, asts) -> None:
 
 def add_py_ast(filename: str, asts) -> None:
 
-    #if 'basic_caption_gui.py' not in filename:
-    #    return
-
     one_file_at_a_time = read_single_file(filename)
     response = requests.post(TO_PY_AST_BUILDER_URL, files=one_file_at_a_time)
     asts['py'].append({ 'filename': filename, 'actual_ast': response.text })
@@ -314,21 +311,15 @@ def add_dhscanner_ast_from_js(filename: str, code, asts) -> None:
 
 def add_dhscanner_ast_from_py(filename: str, code, asts) -> None:
 
-    if 'basic_caption_gui.py' not in filename:
-        return
-
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PY_URL, json=content)
     asts['py'].append({ 'filename': filename, 'dhscanner_ast': response.text })
-
-    # logging.info(json.dumps(json.loads(response.text), indent=4))
 
 def add_dhscanner_ast_fromphp(filename: str, code, asts) -> None:
 
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PHPURL, json=content)
     asts['php'].append({ 'filename': filename, 'dhscanner_ast': response.text })
-    logging.debug(response.text)
 
 def parse_language_asts(language_asts):
 
@@ -412,10 +403,10 @@ def main() -> None:
                     continue
 
             except ValueError:
-                pass 
+                continue
 
-            # file failed
-            logging.debug(f'{json.dumps(actual_ast, indent=4)}')
+            # file succeeded
+            # logging.info(f'{json.dumps(actual_ast, indent=4)}')
             valid_dhscanner_asts[language].append(actual_ast)
             total_num_files[language] += 1
 
