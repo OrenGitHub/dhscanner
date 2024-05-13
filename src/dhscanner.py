@@ -40,7 +40,11 @@ TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8003/codegen'
 TO_KBGEN_URL: typing.Final[str] = 'http://127.0.0.1:8004/kbgen'
 TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8005/check'
 
-CVES: typing.Final[list[str]] = [ 'cve_2023_37466', 'ghsa_97m3' ]
+CVES: typing.Final[list[str]] = [
+    'cve_2023_37466',
+    'ghsa_97m3',
+    'cve_2024_32022'
+]
 
 def existing_tarfile(candidate) -> str:
 
@@ -154,7 +158,21 @@ def untar_image_into_workdir(args: argparse.Namespace) -> bool:
 
 def third_party_js_file(filename: str) -> bool:
 
-    third_party_dirs = ['node_modules', 'vendor', '/opt/yarn', 'python3/dist-packages', 'resources']
+    third_party_dirs = [
+        '/node_modules/',
+        '/vendor/',
+        '/opt/yarn',
+        '/python3/dist-packages',
+        '/python3.8/dist-packages',
+        '/python3.10/dist-packages',
+        '/cuda-12.1/',
+        '/pytorch/',
+        '/resources/',
+        '/jupyter/',
+        '/tutorials/',
+        '/nvidia/'
+    ]
+
     return any(subdir in filename for subdir in third_party_dirs)
 
 def collect_js_sources(workdir: str, files: dict[str,list[str]]) -> None:
@@ -188,7 +206,8 @@ def third_party_py_file(filename: str) -> bool:
         '/examples/',
         '/tutorials/',
         '/cuda-12.1/',
-        'node_modules',
+        '/node_modules/',
+        '/nvidia/',
         '/X11/'
     ]
 
@@ -238,10 +257,12 @@ def add_js_ast(filename: str, asts) -> None:
 
 def add_py_ast(filename: str, asts) -> None:
 
+    #if 'basic_caption_gui.py' not in filename:
+    #    return
+
     one_file_at_a_time = read_single_file(filename)
     response = requests.post(TO_PY_AST_BUILDER_URL, files=one_file_at_a_time)
     asts['py'].append({ 'filename': filename, 'actual_ast': response.text })
-    logging.info(f'{filename}')
 
 def add_phpast(filename: str, asts) -> None:
 
@@ -285,19 +306,24 @@ def parse_code(files: dict[str, list[str]]):
 
     return asts
 
-def add_dhscanner_ast_from_js(filename: str, code, asts):
+def add_dhscanner_ast_from_js(filename: str, code, asts) -> None:
 
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_JS_URL, json=content)
     asts['js'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
-def add_dhscanner_ast_from_py(filename: str, code, asts):
+def add_dhscanner_ast_from_py(filename: str, code, asts) -> None:
+
+    if 'basic_caption_gui.py' not in filename:
+        return
 
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PY_URL, json=content)
     asts['py'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
-def add_dhscanner_ast_fromphp(filename: str, code, asts):
+    # logging.info(json.dumps(json.loads(response.text), indent=4))
+
+def add_dhscanner_ast_fromphp(filename: str, code, asts) -> None:
 
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PHPURL, json=content)
@@ -349,14 +375,14 @@ def main() -> None:
     configure_logger()
     args = parse_args()
 
-    # if check(args) == False:
-    #    logging.warning('invalid args - nothing was done 😳 ')
-    #    return
+    if check(args) == False:
+        logging.warning('invalid args - nothing was done 😳 ')
+        return
 
     docker_tar_name = get_input(args)
     docker_tar_size = get_docker_tar_size(args)
     logging.info(f'[ start  ] {docker_tar_name} ({docker_tar_size:.2f} GB) 😃')
-    # untar_image_into_workdir(args)
+    untar_image_into_workdir(args)
     logging.info('[ step 0 ] untar docker image ... : finished 😃 ')
 
     files = collect_sources(args)
@@ -393,9 +419,6 @@ def main() -> None:
             valid_dhscanner_asts[language].append(actual_ast)
             total_num_files[language] += 1
 
-    # logging.info(f'parse errors: {json.dumps(num_parse_errors)}')
-    # logging.info(f'total num files: {json.dumps(total_num_files)}')
-
     bitcodes = codegen(
         valid_dhscanner_asts['js'] +
         valid_dhscanner_asts['py'] +
@@ -407,7 +430,7 @@ def main() -> None:
     content = bitcodes['content']
 
     logging.info('[ step 3 ] code gen ............. : finished 😃 ')
-    # logging.debug(f'{json.dumps(json.loads(content), indent=4)}')
+    # logging.info(f'{json.dumps(json.loads(content), indent=4)}')
 
     try:
         kb = kbgen(json.loads(content))
