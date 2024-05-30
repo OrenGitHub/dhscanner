@@ -17,6 +17,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8006:5000
+    frontrb:
+        build:
+            context: dhscanner.0.fronts/rb
+            dockerfile: Dockerfile
+        ports:
+            - 8007:3000
     parsers:
         build:
             context: dhscanner.1.parsers
