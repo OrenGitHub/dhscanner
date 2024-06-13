@@ -11,7 +11,7 @@ $ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
 $ cd dhscanner
 ```
 
-- the software components of dhcanner reside in docker containers<sup>1</sup>
+- the software components of dhcanner reside in docker containers<sup>1</sup> <sup>2</sup>
 
 ```bash
 # for x64 systems
@@ -24,7 +24,7 @@ $ docker compose -f compose.dev.yaml up -d
 # $ docker compose down --rmi local
 ```
 
-- the dhscanner manager also runs dockerized, for maximal portability<sup>2</sup>
+- the dhscanner manager also runs dockerized, for maximal portability
 
 ```bash
 $ docker build --tag host.dhscanner  --file Dockerfile .
@@ -67,4 +67,4 @@ $ python src/dhscanner.py --input=example.tar --workdir=workdir
 ---
 
 <sup>1</sup> currently takes less than 3 min. on a modern ( core i9, 32G RAM ) windows machine <br>
-<sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 15 min. )
+<sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 12 min. )
