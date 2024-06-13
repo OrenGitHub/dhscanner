@@ -20,7 +20,7 @@ $ docker compose up -d
 # $ docker compose down --rmi local
 ```
 
-- the dhscanner manager also runs dockerized, for maximal portability
+- the dhscanner manager also runs dockerized, for maximal portability<sup>2</sup>
 
 ```bash
 $ docker build --tag host.dhscanner  --file Dockerfile .
@@ -40,7 +40,7 @@ $ docker save -o example.tar example
 $ docker cp example.tar dhscanner:/
 ```
 
-- let's jump inside and do a quick health check !
+- let's jump inside and make sure everything works !
 
 ```bash
 $ docker exec -it dhscanner bash
@@ -62,4 +62,5 @@ $ python src/dhscanner.py --input=example.tar --workdir=workdir
 
 ---
 
-<sup>1</sup> currently takes around 15 min. (coffee break :coffee: ... )
+<sup>1</sup> currently takes less than 3 min. on a modern ( core i9, 32G RAM ) windows machine
+<sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 15 min. )
