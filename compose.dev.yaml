@@ -1,0 +1,49 @@
+services:
+    frontjs:
+        build:
+            context: dhscanner.0.fronts/js
+            dockerfile: Dockerfile
+        ports:
+            - 8000:3000
+    frontphp:
+        build:
+            context: dhscanner.0.fronts/php
+            dockerfile: Dockerfile
+        ports:
+            - 8001:8000
+    frontpy:
+        build:
+            context: dhscanner.0.fronts/py
+            dockerfile: Dockerfile
+        ports:
+            - 8006:5000
+    frontrb:
+        build:
+            context: dhscanner.0.fronts/rb
+            dockerfile: Dockerfile
+        ports:
+            - 8007:3000
+    parsers:
+        build:
+            context: dhscanner.1.parsers
+            dockerfile: Dockerfile
+        ports:
+            - 8002:3000
+    codegen:
+        build:
+            context: dhscanner.codegen
+            dockerfile: Dockerfile
+        ports:
+            - 8003:3000
+    kbgen:
+        build:
+            context: dhscanner.kbgen
+            dockerfile: Dockerfile
+        ports:
+            - 8004:3000
+    queryengine:
+        build:
+            context: dhscanner.query.engine
+            dockerfile: Dockerfile
+        ports:
+            - 8005:5000
