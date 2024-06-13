@@ -62,5 +62,5 @@ $ python src/dhscanner.py --input=example.tar --workdir=workdir
 
 ---
 
-<sup>1</sup> currently takes less than 3 min. on a modern ( core i9, 32G RAM ) windows machine
+<sup>1</sup> currently takes less than 3 min. on a modern ( core i9, 32G RAM ) windows machine <br>
 <sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 15 min. )
