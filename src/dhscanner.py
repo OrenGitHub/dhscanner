@@ -27,13 +27,16 @@ an existing directory (say from a previous scan)
 DEFAULT_INPUT_NAME: typing.Final[str] = "nonexisting.tar"
 DEFAULT_WORKDIR_NAME: typing.Final[str] = "workdir"
 
-TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 TO_PHPAST_INIT_CSRF: typing.Final[str] = 'http://127.0.0.1:8001/token'
+
 TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8001/to/php/ast'
 TO_PY_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8006/to/native/py/ast'
+TO_RB_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8007/to/native/cruby/ast'
+TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
 
 TO_DHSCANNER_AST_BUILDER_FROM_PY_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/py/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/js/to/dhscanner/ast'
+TO_DHSCANNER_AST_BUILDER_FROM_RB_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/rb/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8002/from/php/to/dhscanner/ast'
 
 TO_CODEGEN_URL: typing.Final[str] = 'http://127.0.0.1:8003/codegen'
@@ -43,7 +46,9 @@ TO_QENGINE_URL: typing.Final[str] = 'http://127.0.0.1:8005/check'
 CVES: typing.Final[list[str]] = [
     'cve_2023_37466',
     'ghsa_97m3',
-    'cve_2024_32022'
+    'cve_2024_32022',
+    'cve_2023_45674',
+    'cve_2024_30256'
 ]
 
 def existing_tarfile(candidate) -> str:
@@ -166,6 +171,7 @@ def third_party_js_file(filename: str) -> bool:
         '/python3.8/dist-packages',
         '/python3.10/dist-packages',
         '/cuda-12.1/',
+        '/python3.11/',
         '/pytorch/',
         '/resources/',
         '/jupyter/',
@@ -198,9 +204,12 @@ def collect_phpsources(workdir: str, files: dict[str,list[str]]) -> None:
 def third_party_py_file(filename: str) -> bool:
 
     third_party_dirs = [
+        '/gdb/',
+        '/python/',
         '/python3/',
         '/python3.8/',
         '/python3.10/',
+        '/python3.11/',
         '/python3.9/',
         '/pytorch/',
         '/examples/',
@@ -220,6 +229,22 @@ def collect_py_sources(workdir: str, files: dict[str,list[str]]) -> None:
         if not third_party_py_file(filename):
             files['py'].append(filename)
 
+def third_party_rb_file(filename: str) -> bool:
+
+    third_party_dirs = [
+        '/python3/',
+        '/python3.11/'
+    ]
+
+    return any(subdir in filename for subdir in third_party_dirs)
+
+def collect_rb_sources(workdir: str, files: dict[str,list[str]]) -> None:
+
+    filenames = glob.glob(f'{workdir}/**/*.rb', recursive=True)
+    for filename in filenames:
+        if not third_party_rb_file(filename):
+            files['rb'].append(filename)
+
 def collect_sources(args: argparse.Namespace):
 
     workdir = get_workdir(args)
@@ -228,7 +253,7 @@ def collect_sources(args: argparse.Namespace):
     collect_js_sources(workdir, files)
     collect_phpsources(workdir, files)
     collect_py_sources(workdir, files)
-    # collect_rb_sources(files)
+    collect_rb_sources(workdir, files)
     # collect_ts_sources(files)
 
     return files
@@ -260,6 +285,12 @@ def add_py_ast(filename: str, asts) -> None:
     one_file_at_a_time = read_single_file(filename)
     response = requests.post(TO_PY_AST_BUILDER_URL, files=one_file_at_a_time)
     asts['py'].append({ 'filename': filename, 'actual_ast': response.text })
+
+def add_rb_ast(filename: str, asts) -> None:
+
+    one_file_at_a_time = read_single_file(filename)
+    response = requests.post(TO_RB_AST_BUILDER_URL, files=one_file_at_a_time)
+    asts['rb'].append({ 'filename': filename, 'actual_ast': response.text.replace('\\"', '') })
 
 def add_phpast(filename: str, asts) -> None:
 
@@ -295,7 +326,7 @@ def parse_code(files: dict[str, list[str]]):
         for filename in filenames:
             match language:
                 case 'js':  add_js_ast(filename, asts)
-                case 'rb':  add_js_ast(filename, asts)
+                case 'rb':  add_rb_ast(filename, asts)
                 case 'py':  add_py_ast(filename, asts)
                 case 'ts':  add_js_ast(filename, asts)
                 case 'php': add_phpast(filename, asts)
@@ -315,6 +346,16 @@ def add_dhscanner_ast_from_py(filename: str, code, asts) -> None:
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PY_URL, json=content)
     asts['py'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
+    #if filename.endswith('routers/utils.py'):
+    #    print(code)
+    #    logging.info(json.dumps(json.loads(response.text), indent=4))
+
+def add_dhscanner_ast_from_rb(filename: str, code, asts) -> None:
+
+    content = { 'filename': filename, 'content': code}
+    response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_RB_URL, json=content)
+    asts['rb'].append({ 'filename': filename, 'dhscanner_ast': response.text })
+
 def add_dhscanner_ast_fromphp(filename: str, code, asts) -> None:
 
     content = { 'filename': filename, 'content': code}
@@ -331,7 +372,7 @@ def parse_language_asts(language_asts):
             code = ast['actual_ast']
             match language:
                 case 'js':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
-                case 'rb':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'rb':  add_dhscanner_ast_from_rb(filename, code, dhscanner_asts)
                 case 'py':  add_dhscanner_ast_from_py(filename, code, dhscanner_asts)
                 case 'ts':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
                 case 'php': add_dhscanner_ast_fromphp(filename, code, dhscanner_asts)
@@ -341,7 +382,7 @@ def parse_language_asts(language_asts):
 
 def codegen(dhscanner_asts):
 
-    content = { 'dirname': 'GGG', 'astsContent': dhscanner_asts }
+    content = { 'asts': dhscanner_asts }
     response = requests.post(TO_CODEGEN_URL, json=content)
     return { 'content': response.text }
 
@@ -403,7 +444,7 @@ def main() -> None:
                     continue
 
             except ValueError:
-                continue
+                continue 
 
             # file succeeded
             # logging.info(f'{json.dumps(actual_ast, indent=4)}')
@@ -413,6 +454,7 @@ def main() -> None:
     bitcodes = codegen(
         valid_dhscanner_asts['js'] +
         valid_dhscanner_asts['py'] +
+        valid_dhscanner_asts['rb'] +
         valid_dhscanner_asts['php']
     )
 
@@ -433,7 +475,10 @@ def main() -> None:
     content = json.loads(kb['content'])['content']
 
     with open('kb.pl', 'w') as fl:
-        fl.write('\n'.join(sorted(content)))
+        dummy_classloc = 'not_a_real_loc'
+        dummy_classname = "'not_a_real_classnem'"
+        fl.write(f'kb_class_name( {dummy_classloc}, {dummy_classname}).\n')
+        fl.write('\n'.join(sorted(set(content))))
         fl.write('\n')
 
     logging.info('[ step 5 ] prolog file gen ...... : finished 😃 ')
