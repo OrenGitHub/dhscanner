@@ -32,7 +32,7 @@ services:
         ports:
             - 8003:3000
     kbgen:
-        image: orenishdocker/dhscanner-codegen
+        image: orenishdocker/dhscanner-kbgen
         ports:
             - 8004:3000
     queryengine:
