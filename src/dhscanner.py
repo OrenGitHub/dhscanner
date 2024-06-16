@@ -146,7 +146,7 @@ def untar_image_into_workdir(args: argparse.Namespace) -> bool:
     workdir = get_workdir(args)
 
     imagetar = tarfile.open(name=imagename)
-    imagetar.extractall(path=workdir)
+    imagetar.extractall(path=workdir, filter='tar')
     imagetar.close()
 
     layers = glob.glob(f'{workdir}/**/*', recursive=True)
@@ -155,7 +155,7 @@ def untar_image_into_workdir(args: argparse.Namespace) -> bool:
         if os.path.isfile(layer) and 'POSIX tar archive' in magic.from_file(layer):
             layertar = tarfile.open(name=layer)
             dirname = os.path.dirname(layer)
-            layertar.extractall(path=dirname)
+            layertar.extractall(path=dirname, filter='tar')
             layertar.close()
 
     # TODO: handle failures and logging
