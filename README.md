@@ -68,7 +68,7 @@ $ python src/dhscanner.py --input=open_webui.tar --workdir=workdir
 ---
 
 <sup>1</sup> currently takes less than 3 min. on a modern ( core i9, 32G RAM ) windows machine <br>
-<sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 12 min. )
+<sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 12 min. ) <br>
 <sup>3</sup> use a different directory for building the tested image tar
 
 [1]: https://nvd.nist.gov/vuln/detail/CVE-2024-30256
