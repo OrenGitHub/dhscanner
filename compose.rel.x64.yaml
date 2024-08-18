@@ -24,15 +24,15 @@ services:
         ports:
             - 8007:3000
     parsers:
-        image: orenishdocker/dhscanner-parsers
+        image: orenishdocker/dhscanner-parsers:x64
         ports:
             - 8002:3000
     codegen:
-        image: orenishdocker/dhscanner-codegen
+        image: orenishdocker/dhscanner-codegen:x64
         ports:
             - 8003:3000
     kbgen:
-        image: orenishdocker/dhscanner-kbgen
+        image: orenishdocker/dhscanner-kbgen:x64
         ports:
             - 8004:3000
     queryengine:
