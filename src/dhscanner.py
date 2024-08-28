@@ -48,7 +48,9 @@ CVES: typing.Final[list[str]] = [
     'ghsa_97m3',
     'cve_2024_32022',
     'cve_2023_45674',
-    'cve_2024_30256'
+    'cve_2024_30256',
+    'cve_2024_33667',
+    'cve_2024_42363'
 ]
 
 def existing_tarfile(candidate) -> str:
@@ -236,6 +238,8 @@ def third_party_rb_file(filename: str) -> bool:
         '/python3.11/'
     ]
 
+    # return 'zammad' not in filename
+
     return any(subdir in filename for subdir in third_party_dirs)
 
 def collect_rb_sources(workdir: str, files: dict[str,list[str]]) -> None:
@@ -323,7 +327,8 @@ def parse_code(files: dict[str, list[str]]):
     asts: dict = collections.defaultdict(list)
 
     for language, filenames in files.items():
-        for filename in filenames:
+        n = len(filenames)
+        for index, filename in enumerate(filenames):
             match language:
                 case 'js':  add_js_ast(filename, asts)
                 case 'rb':  add_rb_ast(filename, asts)
@@ -331,6 +336,8 @@ def parse_code(files: dict[str, list[str]]):
                 case 'ts':  add_js_ast(filename, asts)
                 case 'php': add_phpast(filename, asts)
                 case   _  : pass
+            
+            # logging.info(f'native parsing {index}/{n} {language} files')
 
     return asts
 
@@ -346,15 +353,15 @@ def add_dhscanner_ast_from_py(filename: str, code, asts) -> None:
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PY_URL, json=content)
     asts['py'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
-    #if filename.endswith('routers/utils.py'):
-    #    print(code)
-    #    logging.info(json.dumps(json.loads(response.text), indent=4))
-
 def add_dhscanner_ast_from_rb(filename: str, code, asts) -> None:
 
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_RB_URL, json=content)
     asts['rb'].append({ 'filename': filename, 'dhscanner_ast': response.text })
+
+    # if filename.endswith('util.rb'):
+    #    print(code)
+    #    logging.info(json.dumps(json.loads(response.text), indent=4))
 
 def add_dhscanner_ast_fromphp(filename: str, code, asts) -> None:
 
@@ -367,7 +374,8 @@ def parse_language_asts(language_asts):
     dhscanner_asts: dict = collections.defaultdict(list)
 
     for language, asts in language_asts.items():
-        for ast in asts:
+        n = len(asts)
+        for index, ast in enumerate(asts):
             filename = ast['filename']
             code = ast['actual_ast']
             match language:
@@ -377,6 +385,8 @@ def parse_language_asts(language_asts):
                 case 'ts':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
                 case 'php': add_dhscanner_ast_fromphp(filename, code, dhscanner_asts)
                 case   _  : pass
+
+            #logging.info(f'dhscanner parsing {index}/{n}: {filename}')
 
     return dhscanner_asts
 
@@ -462,17 +472,22 @@ def main() -> None:
     
     content = bitcodes['content']
 
-    logging.info('[ step 3 ] code gen ............. : finished 😃 ')
-    # logging.info(f'{json.dumps(json.loads(content), indent=4)}')
-
     try:
-        kb = kbgen(json.loads(content))
-        logging.info('[ step 4 ] knowledge base gen ... : finished 😃 ')
+        bitcode_as_json = json.loads(content)
+        logging.info('[ step 3 ] code gen ............. : finished 😃 ')
+        # logging.info(f'{json.dumps(json.loads(content), indent=4)}')
     except ValueError:
-        logging.warning('[ step 4 ] knowledge base gen ... : failed 😬 ')
+        logging.info('[ step 3 ] code gen ............. : failed 😬 ')
         return
 
-    content = json.loads(kb['content'])['content']
+    kb = kbgen(bitcode_as_json)
+ 
+    try: 
+        content = json.loads(kb['content'])['content']
+        logging.info('[ step 4 ] knowledge base gen ... : finished 😃 ')
+    except json.JSONDecodeError:
+        logging.warning('[ step 4 ] knowledge base gen ... : failed 😬 ')
+        return
 
     with open('kb.pl', 'w') as fl:
         dummy_classloc = 'not_a_real_loc'
