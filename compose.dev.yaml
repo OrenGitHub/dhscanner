@@ -5,6 +5,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - 8000:3000
+    frontts:
+        build:
+            context: dhscanner.0.fronts/ts
+            dockerfile: Dockerfile
+        ports:
+            - 8008:3000
     frontphp:
         build:
             context: dhscanner.0.fronts/php
