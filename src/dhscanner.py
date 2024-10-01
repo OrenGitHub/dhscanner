@@ -33,9 +33,11 @@ TO_PHPAST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8001/to/php/ast'
 TO_PY_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8006/to/native/py/ast'
 TO_RB_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8007/to/native/cruby/ast'
 TO_JS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8000/to/esprima/js/ast'
+TO_TS_AST_BUILDER_URL: typing.Final[str] = 'http://127.0.0.1:8008/to/native/ts/ast'
 
 TO_DHSCANNER_AST_BUILDER_FROM_PY_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/py/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_JS_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/js/to/dhscanner/ast'
+TO_DHSCANNER_AST_BUILDER_FROM_TS_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/ts/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_RB_URL: typing.Final[str] = 'http://127.0.0.1:8002/from/rb/to/dhscanner/ast'
 TO_DHSCANNER_AST_BUILDER_FROM_PHPURL: typing.Final[str] = 'http://127.0.0.1:8002/from/php/to/dhscanner/ast'
 
@@ -50,7 +52,9 @@ CVES: typing.Final[list[str]] = [
     'cve_2023_45674',
     'cve_2024_30256',
     'cve_2024_33667',
-    'cve_2024_42363'
+    'cve_2024_42363',
+    'ghsl_2024_093',
+    'cve_2024_7856'
 ]
 
 def existing_tarfile(candidate) -> str:
@@ -163,6 +167,9 @@ def untar_image_into_workdir(args: argparse.Namespace) -> bool:
     # TODO: handle failures and logging
     return True
 
+def third_party_ts_file(filename: str) -> bool:
+    return False
+
 def third_party_js_file(filename: str) -> bool:
 
     third_party_dirs = [
@@ -191,6 +198,14 @@ def collect_js_sources(workdir: str, files: dict[str,list[str]]) -> None:
             if not third_party_js_file(filename):
                 files['js'].append(filename)
 
+def collect_ts_sources(workdir: str, files: dict[str,list[str]]) -> None:
+
+    filenames = glob.glob(f'{workdir}/**/*.ts', recursive=True)
+    for filename in filenames:
+        if os.path.isfile(filename):
+            if not third_party_ts_file(filename):
+                files['ts'].append(filename)
+
 def third_party_php_file(filename: str) -> bool:
 
     third_party_dirs = ['vendor', '/php/']
@@ -199,7 +214,7 @@ def third_party_php_file(filename: str) -> bool:
 def collect_phpsources(workdir: str, files: dict[str,list[str]]) -> None:
 
     filenames = glob.glob(f'{workdir}/**/*.php', recursive=True)
-    for filename in filenames:
+    for index, filename in enumerate(filenames):
         if not third_party_php_file(filename):
             files['php'].append(filename)
 
@@ -255,10 +270,10 @@ def collect_sources(args: argparse.Namespace):
     files: dict[str, list[str]] = collections.defaultdict(list)
 
     collect_js_sources(workdir, files)
+    collect_ts_sources(workdir, files)
     collect_phpsources(workdir, files)
     collect_py_sources(workdir, files)
     collect_rb_sources(workdir, files)
-    # collect_ts_sources(files)
 
     return files
 
@@ -284,6 +299,12 @@ def add_js_ast(filename: str, asts) -> None:
     response = requests.post(TO_JS_AST_BUILDER_URL, files=one_file_at_a_time)
     asts['js'].append({ 'filename': filename, 'actual_ast': response.text })
 
+def add_ts_ast(filename: str, asts) -> None:
+
+    one_file_at_a_time = read_single_file(filename)
+    response = requests.post(TO_TS_AST_BUILDER_URL, files=one_file_at_a_time)
+    asts['ts'].append({ 'filename': filename, 'actual_ast': response.text })
+
 def add_py_ast(filename: str, asts) -> None:
 
     one_file_at_a_time = read_single_file(filename)
@@ -298,10 +319,6 @@ def add_rb_ast(filename: str, asts) -> None:
 
 def add_phpast(filename: str, asts) -> None:
 
-    if not filename.endswith('web.php'):
-        return
-
-    # one_file_at_a_time = read_single_file(filename)
     session = requests.Session()
     response = session.get(TO_PHPAST_INIT_CSRF)
     token = response.text
@@ -312,7 +329,7 @@ def add_phpast(filename: str, asts) -> None:
         code = fl.read()
 
     response = session.post(
-        'http://127.0.0.1:8001/to/php/ast',
+        TO_PHPAST_BUILDER_URL,
         files={'source': ('source', code)},
         headers=headers,
         cookies=cookies
@@ -333,7 +350,7 @@ def parse_code(files: dict[str, list[str]]):
                 case 'js':  add_js_ast(filename, asts)
                 case 'rb':  add_rb_ast(filename, asts)
                 case 'py':  add_py_ast(filename, asts)
-                case 'ts':  add_js_ast(filename, asts)
+                case 'ts':  add_ts_ast(filename, asts)
                 case 'php': add_phpast(filename, asts)
                 case   _  : pass
             
@@ -353,13 +370,24 @@ def add_dhscanner_ast_from_py(filename: str, code, asts) -> None:
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PY_URL, json=content)
     asts['py'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
+def add_dhscanner_ast_from_ts(filename: str, code, asts) -> None:
+
+    content = { 'filename': filename, 'content': code}
+    response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_TS_URL, json=content)
+    asts['ts'].append({ 'filename': filename, 'dhscanner_ast': response.text })
+
+    if filename.endswith('nuxt-link.ts'):
+        print(code)
+        logging.info(json.dumps(json.loads(response.text), indent=4))
+
+
 def add_dhscanner_ast_from_rb(filename: str, code, asts) -> None:
 
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_RB_URL, json=content)
     asts['rb'].append({ 'filename': filename, 'dhscanner_ast': response.text })
 
-    # if filename.endswith('util.rb'):
+    #if filename.endswith('indie_auth_client.rb'):
     #    print(code)
     #    logging.info(json.dumps(json.loads(response.text), indent=4))
 
@@ -368,6 +396,10 @@ def add_dhscanner_ast_fromphp(filename: str, code, asts) -> None:
     content = { 'filename': filename, 'content': code}
     response = requests.post(TO_DHSCANNER_AST_BUILDER_FROM_PHPURL, json=content)
     asts['php'].append({ 'filename': filename, 'dhscanner_ast': response.text })
+
+    #if filename.endswith('class-sonaar-music.php'):
+        # print(code)
+        #logging.info(json.dumps(json.loads(response.text), indent=4))
 
 def parse_language_asts(language_asts):
 
@@ -382,11 +414,11 @@ def parse_language_asts(language_asts):
                 case 'js':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
                 case 'rb':  add_dhscanner_ast_from_rb(filename, code, dhscanner_asts)
                 case 'py':  add_dhscanner_ast_from_py(filename, code, dhscanner_asts)
-                case 'ts':  add_dhscanner_ast_from_js(filename, code, dhscanner_asts)
+                case 'ts':  add_dhscanner_ast_from_ts(filename, code, dhscanner_asts)
                 case 'php': add_dhscanner_ast_fromphp(filename, code, dhscanner_asts)
                 case   _  : pass
 
-            #logging.info(f'dhscanner parsing {index}/{n}: {filename}')
+            # logging.info(f'dhscanner parsing {index}/{n}: {filename}')
 
     return dhscanner_asts
 
@@ -460,6 +492,11 @@ def main() -> None:
             # logging.info(f'{json.dumps(actual_ast, indent=4)}')
             valid_dhscanner_asts[language].append(actual_ast)
             total_num_files[language] += 1
+
+    for language in dhscanner_asts.keys():
+        n = total_num_files[language]
+        errors = num_parse_errors[language]
+        logging.info(f'[ step 2 ] dhscanner ast ( {language} )   : {n - errors}/{n}')
 
     bitcodes = codegen(
         valid_dhscanner_asts['js'] +
