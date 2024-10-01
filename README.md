@@ -14,10 +14,10 @@ $ cd dhscanner
 - the software components of dhcanner reside in docker containers<sup>1</sup> <sup>2</sup>
 
 ```bash
-# for x64 systems
-$ docker compose up -d
+# for fastest (release) build on x64 systems
+$ docker compose -f compose.rel.x64.yaml up -d
 
-# for ARM/v8 please use the dev build
+# for dev build (also for ARM systems)
 $ docker compose -f compose.dev.yaml up -d
 
 # to remove all containers and all images:
