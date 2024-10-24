@@ -1,14 +1,10 @@
 services:
     frontjs:
-        build:
-            context: dhscanner.0.fronts/js
-            dockerfile: Dockerfile
+        image: orenishdocker/dhscanner-frontjs:x64
         ports:
             - 8000:3000
     frontts:
-        build:
-            context: dhscanner.0.fronts/ts
-            dockerfile: Dockerfile
+        image: orenishdocker/dhscanner-frontts:x64
         ports:
             - 8008:3000
     frontphp:
