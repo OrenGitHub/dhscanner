@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dhscanner
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: dhscanner
+  template:
+    metadata:
+      labels:
+        app: dhscanner
+    spec:
+      containers:
+      - name: parsers
+        image: orenishdocker/dhscanner-parsers:aarch64
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
