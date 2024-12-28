@@ -24,21 +24,15 @@ services:
         ports:
             - 8007:3000
     parsers:
-        build:
-            context: dhscanner.1.parsers
-            dockerfile: Dockerfile.rel.aarch64
+        image: orenishdocker/dhscanner-parsers:aarch64
         ports:
             - 8002:3000
     codegen:
-        build:
-            context: dhscanner.codegen
-            dockerfile: Dockerfile.rel.aarch64
+        image: orenishdocker/dhscanner-codegen:aarch64
         ports:
             - 8003:3000
     kbgen:
-        build:
-            context: dhscanner.kbgen
-            dockerfile: Dockerfile.rel.aarch64
+        image: orenishdocker/dhscanner-kbgen:aarch64
         ports:
             - 8004:3000
     queryengine:
