@@ -1,6 +1,6 @@
 ### dhscanner
 
-Make container scanning great again :smiley:
+Make file system scanning great again :smiley:
 
 ### Installation
 
@@ -11,17 +11,17 @@ $ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
 $ cd dhscanner
 ```
 
-- the software components of dhcanner reside in docker containers<sup>1</sup> <sup>2</sup>
+- the dhscanner services are dockerized
 
 ```bash
 # for fastest (release) build on x64 systems
 $ docker compose -f compose.rel.x64.yaml up -d
 
-# for dev build (also for ARM systems)
-$ docker compose -f compose.dev.yaml up -d
+# for fastest (release) build on ARM systems
+$ docker compose -f compose.rel.aarch.yaml up -d
 
-# to remove all containers and all images:
-# $ docker compose down --rmi local
+# to experiment and customize dhscanner
+$ docker compose -f compose.dev.yaml up -d
 ```
 
 - the dhscanner manager also runs dockerized, for maximal portability
@@ -31,7 +31,7 @@ $ docker build --tag host.dhscanner  --file Dockerfile .
 $ docker run --network=host -d -t --name dhscanner host.dhscanner
 ```
 
-- now let's inspect [CVE-2024-30256][1] disclosed by [CodeQL][2]<sup>3</sup>:
+- now let's inspect [CVE-2024-30256][1] disclosed by [CodeQL][2]<sup>1</sup>:
 
 ```bash
 $ git clone https://github.com/open-webui/open-webui.git
@@ -67,9 +67,7 @@ $ python src/dhscanner.py --input=open_webui.tar --workdir=workdir
 
 ---
 
-<sup>1</sup> currently takes 3.5 min. on a modern ( core i9, 32G RAM ) windows machine <br>
-<sup>2</sup> currently ARM/v8 support is only through a dev build which takes significantly longer ( 12 min. ) <br>
-<sup>3</sup> use a different directory for building the tested image tar
+<sup>1</sup> use a different directory for building the tested image tar
 
 [1]: https://nvd.nist.gov/vuln/detail/CVE-2024-30256
 [2]: https://securitylab.github.com/advisories/GHSL-2024-033_open-webui/
