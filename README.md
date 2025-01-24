@@ -33,5 +33,7 @@ $ tar -cz frappe | curl -X POST -H "Content-Type: application/octet-stream" -H "
 ```
 
 - look at the logs of the `entrypoint` service (see example from docker desktop)
+  
+![צילום מסך 2025-01-24 192201](https://github.com/user-attachments/assets/ee1156b7-9c43-42b3-ad6e-1532a74682dd)
 
 [1]: https://github.com/frappe/frappe
