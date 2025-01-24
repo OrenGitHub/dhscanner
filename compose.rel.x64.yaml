@@ -1,4 +1,14 @@
 services:
+    entrypoint:
+        build:
+            context: dhscanner.entrypoint
+            dockerfile: Dockerfile
+            args:
+                APPROVED_BEARER_TOKEN_1: ${APPROVED_BEARER_TOKEN_1}
+        ports:
+            - 443:443
+        networks:
+            - dhscanner
     frontjs:
         image: orenishdocker/dhscanner-frontjs:x64
         networks:
