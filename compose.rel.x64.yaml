@@ -1,45 +1,48 @@
 services:
     frontjs:
         image: orenishdocker/dhscanner-frontjs:x64
-        ports:
-            - 8000:3000
+        networks:
+            - dhscanner
     frontts:
         image: orenishdocker/dhscanner-frontts:x64
-        ports:
-            - 8008:3000
+        networks:
+            - dhscanner
     frontphp:
         build:
             context: dhscanner.0.fronts/php
             dockerfile: Dockerfile
-        ports:
-            - 8001:8000
+        networks:
+            - dhscanner
     frontpy:
         build:
             context: dhscanner.0.fronts/py
             dockerfile: Dockerfile
-        ports:
-            - 8006:5000
+        networks:
+            - dhscanner
     frontrb:
         build:
             context: dhscanner.0.fronts/rb
             dockerfile: Dockerfile
-        ports:
-            - 8007:3000
+        networks:
+            - dhscanner
     parsers:
         image: orenishdocker/dhscanner-parsers:x64
-        ports:
-            - 8002:3000
+        networks:
+            - dhscanner
     codegen:
         image: orenishdocker/dhscanner-codegen:x64
-        ports:
-            - 8003:3000
+        networks:
+            - dhscanner
     kbgen:
         image: orenishdocker/dhscanner-kbgen:x64
-        ports:
-            - 8004:3000
+        networks:
+            - dhscanner
     queryengine:
         build:
             context: dhscanner.query.engine
             dockerfile: Dockerfile
-        ports:
-            - 8005:5000
+        networks:
+            - dhscanner
+
+networks:
+    dhscanner:
