@@ -24,50 +24,14 @@ $ docker compose -f compose.rel.aarch.yaml up -d
 $ docker compose -f compose.dev.yaml up -d
 ```
 
-- the dhscanner manager also runs dockerized, for maximal portability
+- take any directory you want to scan (say the [frappe][1] code base)
 
 ```bash
-$ docker build --tag host.dhscanner  --file Dockerfile .
-$ docker run --network=host -d -t --name dhscanner host.dhscanner
+$ git clone https://github.com/frappe/frappe
+$ cp <your.dhscanner.queries.file> frappe/.dhscanner.queries # <--- one file for all queries
+$ tar -cz frappe | curl -X POST -H "Content-Type: application/octet-stream" -H "Authorization: Bearer ${BEARER_TOKEN}" -H "X-Directory-Name: frappe" --data-binary @- http://127.0.0.1:443/scan --insecure
 ```
 
-- now let's inspect [CVE-2024-30256][1] disclosed by [CodeQL][2]<sup>1</sup>:
+- look at the logs of the `entrypoint` service (see example from docker desktop)
 
-```bash
-$ git clone https://github.com/open-webui/open-webui.git
-$ cd .\open-webui\
-$ git checkout tags/v0.1.111
-$ docker build --tag host.open_webui --file Dockerfile .
-$ docker save -o open_webui.tar host.open_webui
-$ docker cp .\open_webui.tar dhscanner:/
-```
-
-- let's jump inside and make sure everything works !
-
-```bash
-$ docker exec -it dhscanner bash
-
-# inside our docker !
-# let's start scanning !
-$ python src/dhscanner.py --input=open_webui.tar --workdir=workdir
-[16/06/2024 ( 08:17:58 )] [INFO]: [ start  ] open_webui.tar (3.55 GB) 😃
-[16/06/2024 ( 08:18:17 )] [INFO]: [ step 0 ] untar docker image ... : finished 😃
-[16/06/2024 ( 08:18:18 )] [INFO]: [ step 1 ] native asts .......... : finished 😃
-[16/06/2024 ( 08:18:18 )] [INFO]: [ step 2 ] dhscanner asts ....... : finished 😃
-[16/06/2024 ( 08:18:18 )] [INFO]: [ step 3 ] code gen ............. : finished 😃
-[16/06/2024 ( 08:18:18 )] [INFO]: [ step 4 ] knowledge base gen ... : finished 😃
-[16/06/2024 ( 08:18:18 )] [INFO]: [ step 5 ] prolog file gen ...... : finished 😃
-[16/06/2024 ( 08:18:18 )] [INFO]: [  cves  ] ...................... : starting 🙏
-[16/06/2024 ( 08:18:18 )] [INFO]: [ cve_2023_37466 ] .............. : looking good 👌
-[16/06/2024 ( 08:18:18 )] [INFO]: [ ghsa_97m3      ] .............. : looking good 👌
-[16/06/2024 ( 08:18:18 )] [INFO]: [ cve_2024_32022 ] .............. : looking good 👌
-[16/06/2024 ( 08:18:18 )] [INFO]: [ cve_2023_45674 ] .............. : looking good 👌
-[16/06/2024 ( 08:18:18 )] [INFO]: [ cve_2024_30256 ] .............. : oh no ! it looks bad 😬😬😬
-```
-
----
-
-<sup>1</sup> use a different directory for building the tested image tar
-
-[1]: https://nvd.nist.gov/vuln/detail/CVE-2024-30256
-[2]: https://securitylab.github.com/advisories/GHSL-2024-033_open-webui/
+[1]: https://github.com/frappe/frappe
