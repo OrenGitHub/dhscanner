@@ -17,8 +17,8 @@ $ cd dhscanner
 # for fastest (release) build on x64 systems
 $ docker compose -f compose.rel.x64.yaml up -d
 
-# for fastest (release) build on ARM systems
-$ docker compose -f compose.rel.aarch.yaml up -d
+# for fastest (release) build on ARM64 systems
+$ docker compose -f compose.rel.aarch64.yaml up -d
 
 # to experiment and customize dhscanner
 $ docker compose -f compose.dev.yaml up -d

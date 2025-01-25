@@ -1,43 +1,62 @@
 services:
+    entrypoint:
+        build:
+            context: dhscanner.entrypoint
+            dockerfile: Dockerfile
+            args:
+                APPROVED_BEARER_TOKEN_1: ${APPROVED_BEARER_TOKEN_1}
+        ports:
+            - 443:443
+        networks:
+            - dhscanner
     frontjs:
         build:
             context: dhscanner.0.fronts/js
             dockerfile: Dockerfile
-        ports:
-            - 8000:3000
+        networks:
+            - dhscanner
+    frontts:
+        build:
+            context: dhscanner.0.fronts/ts
+            dockerfile: Dockerfile
+        networks:
+            - dhscanner
     frontphp:
         build:
             context: dhscanner.0.fronts/php
             dockerfile: Dockerfile
-        ports:
-            - 8001:8000
+        networks:
+            - dhscanner
     frontpy:
         build:
             context: dhscanner.0.fronts/py
             dockerfile: Dockerfile
-        ports:
-            - 8006:5000
+        networks:
+            - dhscanner
     frontrb:
         build:
             context: dhscanner.0.fronts/rb
             dockerfile: Dockerfile
-        ports:
-            - 8007:3000
+        networks:
+            - dhscanner
     parsers:
-        image: orenishdocker/dhscanner-parsers:aarch64
-        ports:
-            - 8002:3000
+        image: orenishdocker/dhscanner-parsers:x64
+        networks:
+            - dhscanner
     codegen:
-        image: orenishdocker/dhscanner-codegen:aarch64
-        ports:
-            - 8003:3000
+        image: orenishdocker/dhscanner-codegen:x64
+        networks:
+            - dhscanner
     kbgen:
-        image: orenishdocker/dhscanner-kbgen:aarch64
-        ports:
-            - 8004:3000
+        image: orenishdocker/dhscanner-kbgen:x64
+        networks:
+            - dhscanner
     queryengine:
         build:
             context: dhscanner.query.engine
             dockerfile: Dockerfile
-        ports:
-            - 8005:5000
+        networks:
+            - dhscanner
+
+networks:
+    dhscanner:
