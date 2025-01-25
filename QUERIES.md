@@ -5,7 +5,7 @@
 - `user_input_might_reach_function('any.fully.qualified.name')`
 - user_input_might_reach_function('sqlalchemy.create_engine.connect.execute').
 
-> 💡Note: to simplify queries, there is *no* need<sup>1</sup> to write
+> 💡Note: to simplify queries, there is *no need*<sup>1</sup> to write  
 > `sqlalchemy.create_engine().connect().execute`
 
 ---
