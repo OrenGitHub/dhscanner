@@ -25,6 +25,7 @@ $ docker compose -f compose.dev.yaml up -d
 ```
 
 - take any directory you want to scan (say the [frappe][1] code base)
+- refer to [the API documentation](./QUERIES.md) for writing queries
 
 ```bash
 $ git clone https://github.com/frappe/frappe
