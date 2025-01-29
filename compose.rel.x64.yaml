@@ -10,7 +10,9 @@ services:
         networks:
             - dhscanner
     frontjs:
-        image: orenishdocker/dhscanner-frontjs:x64
+        build:
+            context: dhscanner.0.fronts/js
+            dockerfile: Dockerfile
         networks:
             - dhscanner
     frontts:
