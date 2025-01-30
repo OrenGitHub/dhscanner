@@ -4,6 +4,7 @@ services:
             context: dhscanner.entrypoint
             dockerfile: Dockerfile
             args:
+                TZ: ${TZ:-Asia/Jerusalem}
                 APPROVED_BEARER_TOKEN_1: ${APPROVED_BEARER_TOKEN_1}
         ports:
             - 443:443
