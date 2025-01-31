@@ -5,7 +5,9 @@ services:
             dockerfile: Dockerfile
             args:
                 TZ: ${TZ:-Asia/Jerusalem}
-                APPROVED_BEARER_TOKEN_1: ${APPROVED_BEARER_TOKEN_1}
+                NUM_APPROVED_URLS: ${NUM_APPROVED_URLS:-1}
+                APPROVED_URL_0: ${APPROVED_URL_0}
+                APPROVED_BEARER_TOKEN_0: ${APPROVED_BEARER_TOKEN_0}
         ports:
             - 443:443
         networks:
