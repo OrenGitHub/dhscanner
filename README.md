@@ -44,8 +44,6 @@ $ tar -cz sickchill | curl -X POST -H "Content-Type: application/octet-stream" -
 {"runs":[{"tool":{"driver":{"name":"dhscanner"}},"results":[{"ruleId":"dataflow","message":{"text":"open redirect"},"locations":[{"physicalLocation":{"artifactLocation":{"uri":"sickchill"},"resgion":{"lineStart":33,"lineEnd":33,"colStart":8,"colEnd":65}}}]}]}]}
 ```
 
-- look at the logs of the `entrypoint` service (see example from docker desktop)
-
 [^1]: look at [the API for writing dhscanner queries](QUERIES.md) to learn how to write other queries
 
 [1]: https://nvd.nist.gov/vuln/detail/CVE-2024-53995
