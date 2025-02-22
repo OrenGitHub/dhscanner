@@ -1,55 +1,71 @@
 services:
+    entrypoint:
+        build:
+            context: dhscanner.entrypoint
+            dockerfile: Dockerfile
+            args:
+                TZ: ${TZ:-Asia/Jerusalem}
+                NUM_APPROVED_URLS: ${NUM_APPROVED_URLS:-1}
+                APPROVED_URL_0: ${APPROVED_URL_0}
+                APPROVED_BEARER_TOKEN_0: ${APPROVED_BEARER_TOKEN_0}
+        ports:
+            - 443:443
+        networks:
+            - dhscanner
     frontjs:
         build:
             context: dhscanner.0.fronts/js
             dockerfile: Dockerfile
-        ports:
-            - 8000:3000
+        networks:
+            - dhscanner
     frontts:
         build:
             context: dhscanner.0.fronts/ts
             dockerfile: Dockerfile
-        ports:
-            - 8008:3000
+        networks:
+            - dhscanner
     frontphp:
         build:
             context: dhscanner.0.fronts/php
             dockerfile: Dockerfile
-        ports:
-            - 8001:8000
+        networks:
+            - dhscanner
     frontpy:
         build:
             context: dhscanner.0.fronts/py
             dockerfile: Dockerfile
-        ports:
-            - 8006:5000
+        networks:
+            - dhscanner
     frontrb:
         build:
             context: dhscanner.0.fronts/rb
             dockerfile: Dockerfile
-        ports:
-            - 8007:3000
+        networks:
+            - dhscanner
     parsers:
         build:
             context: dhscanner.1.parsers
             dockerfile: Dockerfile
-        ports:
-            - 8002:3000
+        networks:
+            - dhscanner
     codegen:
         build:
             context: dhscanner.codegen
             dockerfile: Dockerfile
-        ports:
-            - 8003:3000
+        networks:
+            - dhscanner
     kbgen:
         build:
             context: dhscanner.kbgen
             dockerfile: Dockerfile
-        ports:
-            - 8004:3000
+        networks:
+            - dhscanner
     queryengine:
         build:
             context: dhscanner.query.engine
             dockerfile: Dockerfile
-        ports:
-            - 8005:5000
+        networks:
+            - dhscanner
+
+networks:
+    dhscanner:
