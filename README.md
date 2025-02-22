@@ -28,9 +28,11 @@ $ docker compose -f compose.dev.yaml up -d
 
 ```bash
 $ git clone https://github.com/SickChill/sickchill.git
+$ cd sickchill
 
 # vulnerable version
 $ git checkout tags/2024.3.1
+$ cd ../
 
 # remove, update or add queries as you wish
 $ echo "user_input_might_reach_function('tornado.web.RequestHandler.redirect')." > sickchill/.dhscanner.queries
