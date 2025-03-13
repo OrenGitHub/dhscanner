@@ -34,6 +34,12 @@ services:
             dockerfile: Dockerfile
         networks:
             - dhscanner
+    frontcs:
+        build:
+            context: dhscanner.0.fronts/cs
+            dockerfile: Dockerfile
+        networks:
+            - dhscanner
     frontrb:
         build:
             context: dhscanner.0.fronts/rb
