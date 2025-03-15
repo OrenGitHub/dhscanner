@@ -19,7 +19,9 @@ services:
         networks:
             - dhscanner
     frontts:
-        image: orenishdocker/dhscanner-frontts:x64
+        build:
+            context: dhscanner.0.fronts/ts
+            dockerfile: Dockerfile
         networks:
             - dhscanner
     frontphp:
