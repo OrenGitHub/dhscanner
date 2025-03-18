@@ -61,9 +61,7 @@ services:
         networks:
             - dhscanner
     queryengine:
-        build:
-            context: dhscanner.query.engine
-            dockerfile: Dockerfile
+        image: orenishdocker/dhscanner-pyswipl:x64
         networks:
             - dhscanner
 
