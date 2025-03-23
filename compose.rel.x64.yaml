@@ -24,6 +24,12 @@ services:
             dockerfile: Dockerfile
         networks:
             - dhscanner
+    frontgo:
+        build:
+            context: dhscanner.0.fronts/go
+            dockerfile: Dockerfile
+        networks:
+            - dhscanner
     frontphp:
         build:
             context: dhscanner.0.fronts/php
