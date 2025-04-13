@@ -41,8 +41,11 @@ jobs:
 
       - name: fail if output sarif is different from expected
         run: |
+          set +e
           delta=$(diff output.GHSL_2023_136.sarif tests/expected/GHSL_2023_136.sarif)
-          if [ -n "$delta" ]; then
+          diff_exit=$?
+          set -e
+          if [ "$diff_exit" -ne 0 ]; then
             echo "$delta"
             exit 1
           fi
