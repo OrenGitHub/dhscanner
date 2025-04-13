@@ -26,6 +26,17 @@ jobs:
             -H "Content-Type: application/octet-stream" \
             --data-binary @- http://127.0.0.1:443/ > output.GHSL_2023_136.sarif
 
+      - name: Wait for dhscanner to be ready
+        run: |
+          for i in {1..10}; do
+            if curl -s -o /dev/null http://127.0.0.1:443/; then
+              echo "server is ready !"
+              break
+            fi
+            echo "waiting for server ..."
+            sleep 2
+          done
+
       - name: fail if output sarif is different from expected
         run: |
           delta=$(diff output.GHSL_2023_136.sarif tests/expected/GHSL_2023_136.sarif)
