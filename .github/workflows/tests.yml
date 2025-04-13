@@ -37,7 +37,6 @@ jobs:
             -H "Content-Type: application/octet-stream" \
             --data-binary @- http://127.0.0.1:443/ > output.GHSL_2023_136.sarif
           cat output.GHSL_2023_136.sarif
-          cat tests/expected/GHSL_2023_136.sarif
 
       - name: fail if output sarif is different from expected
         run: |
