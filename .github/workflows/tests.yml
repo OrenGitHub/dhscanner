@@ -37,6 +37,7 @@ jobs:
             -H "Content-Type: application/octet-stream" \
             --data-binary @- http://127.0.0.1:443/ > output.GHSL_2023_136.sarif
           cat output.GHSL_2023_136.sarif
+          docker compose -f compose.rel.x64.yaml logs entrypoint
 
       - name: fail if output sarif is different from expected
         run: |
