@@ -1,4 +1,4 @@
-name: dhscanner-sast
+name: tests
 
 on:
   push:
