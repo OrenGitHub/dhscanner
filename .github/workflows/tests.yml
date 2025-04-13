@@ -1,0 +1,46 @@
+name: dhscanner-sast
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-dhscanner:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repo with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: clone dhscanner (with submodules)
+        run: |
+          docker compose -f compose.rel.x64.yaml up -d
+
+      - name: Wait for dhscanner to be ready
+        run: |
+          for i in {1..10}; do
+            if curl -s -o /dev/null http://127.0.0.1:443/; then
+              echo "server is ready !"
+              break
+            fi
+            echo "waiting for server ..."
+            sleep 2
+          done
+
+      - name: send test data to dhscanner
+        run: |
+          tar -cz tests/GHSL_2023_136 | curl -v -X POST \
+            -H "X-Code-Sent-To-External-Server: false" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @- http://127.0.0.1:443/ > output.GHSL_2023_136.sarif
+
+      - name: fail if output sarif is different from expected
+        run: |
+          delta=$(diff output.GHSL_2023_136.sarif tests/expected/GHSL_2023_136.sarif)
+          if [ -n "$delta" ]; then
+            echo "$delta"
+            exit 1
+          fi
