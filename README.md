@@ -18,7 +18,7 @@ $ docker compose -f compose.rel.aarch64.yaml up -d
 $ docker compose -f compose.dev.yaml up -d
 ```
 
-### CI/CD SAST GitHub action
+### GitHub action
 
 ```yaml
 name: dhscanner-sast
