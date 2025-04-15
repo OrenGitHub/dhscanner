@@ -30,7 +30,7 @@ jobs:
             sleep 2
           done
 
-      - name: send test data to dhscanner
+      - name: send GHSL_2023_136 test data to dhscanner
         run: |
           tar -cz tests/GHSL_2023_136 | curl -v -X POST \
             -H "X-Code-Sent-To-External-Server: false" \
@@ -39,10 +39,30 @@ jobs:
           cat output.GHSL_2023_136.sarif
           docker compose -f compose.rel.x64.yaml logs entrypoint
 
-      - name: fail if output sarif is different from expected
+      - name: fail if GHSL_2023_136 output sarif is different from expected
         run: |
           set +e
           delta=$(diff output.GHSL_2023_136.sarif tests/expected/GHSL_2023_136.sarif)
+          diff_exit=$?
+          set -e
+          if [ "$diff_exit" -ne 0 ]; then
+            echo "$delta"
+            exit 1
+          fi
+
+      - name: send CVE_2023_50264 test data to dhscanner
+        run: |
+          tar -cz tests/CVE_2023_50264 | curl -v -X POST \
+            -H "X-Code-Sent-To-External-Server: false" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @- http://127.0.0.1:443/ > output.CVE_2023_50264.sarif
+          cat output.CVE_2023_50264.sarif
+          docker compose -f compose.rel.x64.yaml logs entrypoint
+
+      - name: fail if CVE_2023_50264 output sarif is different from expected
+        run: |
+          set +e
+          delta=$(diff output.CVE_2023_50264.sarif tests/expected/CVE_2023_50264.sarif)
           diff_exit=$?
           set -e
           if [ "$diff_exit" -ne 0 ]; then
