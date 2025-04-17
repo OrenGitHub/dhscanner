@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/OrenGitHub/dhscanner/actions/workflows/tests.yml/badge.svg)](https://github.com/OrenGitHub/dhscanner/actions/workflows/tests.yml)
 
-### Cli
+### Cli [^1]
 
 ```bash
 $ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
@@ -61,3 +61,5 @@ jobs:
             exit 1
           fi
 ```
+
+[^1]: takes around 3 minutes on modern laptops
