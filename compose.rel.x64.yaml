@@ -55,15 +55,15 @@ services:
         networks:
             - dhscanner
     parsers:
-        image: orenishdocker/dhscanner-parsers:1.0.6-x64
+        image: orenishdocker/dhscanner-parsers:1.0.10-x64
         networks:
             - dhscanner
     codegen:
-        image: orenishdocker/dhscanner-codegen:1.0.4-x64
+        image: orenishdocker/dhscanner-codegen:1.0.5-x64
         networks:
             - dhscanner
     kbgen:
-        image: orenishdocker/dhscanner-kbgen:1.0.3-x64
+        image: orenishdocker/dhscanner-kbgen:1.0.4-x64
         networks:
             - dhscanner
     queryengine:
