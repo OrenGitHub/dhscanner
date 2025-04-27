@@ -9,7 +9,7 @@ services:
                 APPROVED_URL_0: ${APPROVED_URL_0:-}
                 APPROVED_BEARER_TOKEN_0: ${APPROVED_BEARER_TOKEN_0:-}
         ports:
-            - 443:443
+            - 8000:8000
         networks:
             - dhscanner
     frontjs:

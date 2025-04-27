@@ -22,7 +22,7 @@ jobs:
       - name: Wait for dhscanner to be ready
         run: |
           for i in {1..10}; do
-            if curl -s -o /dev/null http://127.0.0.1:443/; then
+            if curl -s -o /dev/null http://127.0.0.1:8000/; then
               echo "server is ready !"
               break
             fi
@@ -35,7 +35,7 @@ jobs:
           tar -cz tests/GHSL_2023_136 | curl -v -X POST \
             -H "X-Code-Sent-To-External-Server: false" \
             -H "Content-Type: application/octet-stream" \
-            --data-binary @- http://127.0.0.1:443/ > output.GHSL_2023_136.sarif
+            --data-binary @- http://127.0.0.1:8000/ > output.GHSL_2023_136.sarif
           cat output.GHSL_2023_136.sarif
           docker compose -f compose.rel.x64.yaml logs entrypoint
 
@@ -55,7 +55,7 @@ jobs:
           tar -cz tests/CVE_2023_50264 | curl -v -X POST \
             -H "X-Code-Sent-To-External-Server: false" \
             -H "Content-Type: application/octet-stream" \
-            --data-binary @- http://127.0.0.1:443/ > output.CVE_2023_50264.sarif
+            --data-binary @- http://127.0.0.1:8000/ > output.CVE_2023_50264.sarif
           cat output.CVE_2023_50264.sarif
           docker compose -f compose.rel.x64.yaml logs entrypoint
 
@@ -75,7 +75,7 @@ jobs:
           tar -cz tests/CVE_2023_34105 | curl -v -X POST \
             -H "X-Code-Sent-To-External-Server: false" \
             -H "Content-Type: application/octet-stream" \
-            --data-binary @- http://127.0.0.1:443/ > output.CVE_2023_34105.sarif
+            --data-binary @- http://127.0.0.1:8000/ > output.CVE_2023_34105.sarif
           cat output.CVE_2023_34105.sarif
           docker compose -f compose.rel.x64.yaml logs entrypoint
 
