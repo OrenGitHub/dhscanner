@@ -63,7 +63,7 @@ services:
         networks:
             - dhscanner
     kbgen:
-        image: orenishdocker/dhscanner-kbgen:1.0.5-x64
+        image: orenishdocker/dhscanner-kbgen:1.0.6-x64
         networks:
             - dhscanner
     queryengine:
