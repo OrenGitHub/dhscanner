@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import io
 import sys
+import json
 import typing
 import tarfile
 import pathlib
@@ -79,6 +80,7 @@ class Argparse:
 
     scan_dirname: pathlib.Path
     ignore_testing_code: bool
+    show_native_ast_for_file: typing.Optional[pathlib.Path]
     show_parse_status_for_file: typing.Optional[pathlib.Path]
 
     @staticmethod
@@ -109,6 +111,14 @@ class Argparse:
         )
 
         parser.add_argument(
+            '--show_native_ast_for_file',
+            required=False,
+            type=existing_fileame,
+            metavar="some/filename.language",
+            help=ARGPARSE_SHOW_PARSE_STATUS_FOR_FILE_HELP
+        )
+
+        parser.add_argument(
             '--show_parse_status_for_file',
             required=False,
             type=existing_fileame,
@@ -123,6 +133,7 @@ class Argparse:
         return Argparse(
             scan_dirname=args.scan_dirname,
             ignore_testing_code=args.ignore_testing_code,
+            show_native_ast_for_file=args.show_native_ast_for_file,
             show_parse_status_for_file=args.show_parse_status_for_file
         )
 
@@ -154,7 +165,22 @@ def create_tarfile(filenames: list[pathlib.Path], scan_dirname: pathlib.Path) ->
 
     return tar_stream
 
-def create_headers(ignore_testing_code: bool, show_parse_status_for_file: typing.Optional[pathlib.Path]) -> dict:
+def normalize(
+    show_parse_status_for_file: typing.Optional[pathlib.Path],
+    scan_dirname: pathlib.Path
+) -> typing.Optional[str]:
+
+    if show_parse_status_for_file is None:
+        return None
+
+    name = str(show_parse_status_for_file.relative_to(scan_dirname))
+    return name.replace('\\', '/')
+
+def create_headers(
+    ignore_testing_code: bool,
+    show_native_ast_for_file: typing.Optional[str],
+    show_parse_status_for_file: typing.Optional[str]
+) -> dict:
 
     headers = {
         'X-Code-Sent-To-External-Server': 'false',
@@ -165,17 +191,27 @@ def create_headers(ignore_testing_code: bool, show_parse_status_for_file: typing
     if show_parse_status_for_file is not None:
         headers['X-Show-Parse-Status-For-File'] = show_parse_status_for_file
 
+    if show_native_ast_for_file is not None:
+        headers['X-Show-Native-Ast-For-File'] = show_native_ast_for_file
+
     return headers
 
 def scan(
     ignore_testing_code: bool,
-    show_parse_status_for_file: typing.Optional[pathlib.Path],
+    show_native_ast_for_file: typing.Optional[str],
+    show_parse_status_for_file: typing.Optional[str],
     tar_stream: io.BytesIO
 ) -> dict:
 
+    headers = create_headers(
+        ignore_testing_code,
+        show_native_ast_for_file,
+        show_parse_status_for_file
+    )
+
     return requests.post(
         f'{LOCALHOST}:{PORT}',
-        headers=create_headers(ignore_testing_code, show_parse_status_for_file),
+        headers=headers,
         data=tar_stream.read()
     )
 
@@ -183,13 +219,25 @@ def main(args: Argparse) -> None:
 
     files = collect_relevant_files(args.scan_dirname)
     tar_stream = create_tarfile(files, args.scan_dirname)
+
+    show_parse_status_for_file = normalize(
+        args.show_parse_status_for_file,
+        args.scan_dirname
+    )
+
+    show_native_ast_for_file = normalize(
+        args.show_native_ast_for_file,
+        args.scan_dirname
+    )
+
     response = scan(
         args.ignore_testing_code,
-        args.show_parse_status_for_file,
+        show_native_ast_for_file,
+        show_parse_status_for_file,
         tar_stream
     )
 
-    logging.info(response)
+    logging.info(json.dumps(response.json(), indent=4))
 
 if __name__ == "__main__":
     if args := Argparse.run():
