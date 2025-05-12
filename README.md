@@ -2,23 +2,10 @@
 
 [![tests](https://github.com/OrenGitHub/dhscanner/actions/workflows/tests.yml/badge.svg)](https://github.com/OrenGitHub/dhscanner/actions/workflows/tests.yml)
 
-### Cli [^1]
+### GitHub action  ( 👈 preferred and easiest way )
 
-```bash
-$ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
-$ cd dhscanner
-
-# for fastest (release) build on x64 systems
-$ docker compose -f compose.rel.x64.yaml up -d
-
-# for fastest (release) build on ARM64 systems
-$ docker compose -f compose.rel.aarch64.yaml up -d
-
-# to experiment and customize dhscanner
-$ docker compose -f compose.dev.yaml up -d
-```
-
-### GitHub action
+<details>
+<summary>click here to copy the yaml file</summary>
 
 ```yaml
 name: dhscanner-sast
@@ -61,5 +48,51 @@ jobs:
             exit 1
           fi
 ```
+</details>
+
+### Cli [^1]
+
+You only need docker 🐳 to install and run dhscanner !
+
+<details>
+<summary>clone the repo</summary><br>
+
+```bash
+$ git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
+$ cd dhscanner
+```
+</details>
+
+<details>
+<summary>for fastest relase build on x64 systems</summary><br>
+
+```bash
+$ docker compose -f compose.rel.x64.yaml up -d
+```  
+</details>
+
+<details>
+<summary>for fastest relase build on ARM / aarch64 systems</summary><br>
+
+```bash
+$ docker compose -f compose.rel.aarch64.yaml up -d
+```  
+</details>
+
+<details>
+<summary>for dev builds ( all systems )</summary><br>
+
+```bash
+$ docker compose -f compose.dev.yaml up -d
+```  
+</details>
+
+<details>
+<summary>start scanning !</summary><br>
+
+```bash
+$ python ./cli.py --scan_dirname ../the/src/dir/to/scan --ignore_testing_code true
+```  
+</details>
 
 [^1]: takes around 3 minutes on modern laptops
