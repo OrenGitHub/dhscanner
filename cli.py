@@ -118,6 +118,8 @@ class Argparse:
 
         args = parser.parse_args()
 
+        logging.info('everything is fine 😊')
+
         return Argparse(
             scan_dirname=args.scan_dirname,
             ignore_testing_code=args.ignore_testing_code,
@@ -147,6 +149,9 @@ def create_tarfile(filenames: list[pathlib.Path], scan_dirname: pathlib.Path) ->
             tar.add(path, arcname=arcname)
 
     tar_stream.seek(0)
+
+    logging.info('tar file created 😊')
+
     return tar_stream
 
 def create_headers(ignore_testing_code: bool, show_parse_status_for_file: typing.Optional[pathlib.Path]) -> dict:
