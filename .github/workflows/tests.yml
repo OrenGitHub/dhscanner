@@ -109,3 +109,23 @@ jobs:
             echo "$delta"
             exit 1
           fi
+
+      - name: send CVE_2023_38870 test data to dhscanner
+        run: |
+          tar -cz tests/CVE_2023_38870 | curl -v -X POST \
+            -H "X-Code-Sent-To-External-Server: false" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @- http://127.0.0.1:8000/ > output.CVE_2023_38870.sarif
+          cat output.CVE_2023_38870.sarif
+          docker compose -f compose.rel.x64.yaml logs entrypoint
+
+      - name: fail if CVE_2023_38870 output sarif is different from expected
+        run: |
+          set +e
+          delta=$(diff output.CVE_2023_38870.sarif tests/expected/CVE_2023_38870.sarif)
+          diff_exit=$?
+          set -e
+          if [ "$diff_exit" -ne 0 ]; then
+            echo "$delta"
+            exit 1
+          fi
