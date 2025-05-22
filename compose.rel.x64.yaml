@@ -59,11 +59,11 @@ services:
         networks:
             - dhscanner
     codegen:
-        image: orenishdocker/dhscanner-codegen:1.0.10-x64
+        image: orenishdocker/dhscanner-codegen:1.0.12-x64
         networks:
             - dhscanner
     kbgen:
-        image: orenishdocker/dhscanner-kbgen:1.0.10-x64
+        image: orenishdocker/dhscanner-kbgen:1.0.12-x64
         networks:
             - dhscanner
     queryengine:
