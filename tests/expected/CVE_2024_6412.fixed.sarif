@@ -1,13 +1,1 @@
-{
-    "version": "2.1.0",
-    "runs": [
-        {
-            "tool": {
-                "driver": {
-                    "name": "dhscanner"
-                }
-            },
-            "results": []
-        }
-    ]
-}
+{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"dhscanner"}},"results":[]}]}
