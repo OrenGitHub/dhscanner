@@ -1,0 +1,75 @@
+{
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "dhscanner"
+                }
+            },
+            "results": [
+                {
+                    "ruleId": "dataflow",
+                    "message": {
+                        "text": "owasp top 10"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "src/admin/class-table.php"
+                                },
+                                "region": {
+                                    "startLine": 258,
+                                    "endLine": 258,
+                                    "startColumn": 4,
+                                    "endColumn": 39
+                                }
+                            }
+                        }
+                    ],
+                    "codeFlows": [
+                        {
+                            "threadFlows": [
+                                {
+                                    "locations": [
+                                        {
+                                            "location": {
+                                                "physicalLocation": {
+                                                    "artifactLocation": {
+                                                        "uri": "src/admin/class-admin.php"
+                                                    },
+                                                    "region": {
+                                                        "startLine": 240,
+                                                        "endLine": 253,
+                                                        "startColumn": 2,
+                                                        "endColumn": 2
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "location": {
+                                                "physicalLocation": {
+                                                    "artifactLocation": {
+                                                        "uri": "src/admin/class-table.php"
+                                                    },
+                                                    "region": {
+                                                        "startLine": 258,
+                                                        "endLine": 258,
+                                                        "startColumn": 4,
+                                                        "endColumn": 39
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
